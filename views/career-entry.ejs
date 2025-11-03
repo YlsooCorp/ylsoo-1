@@ -1,0 +1,142 @@
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title><%= job.title %> – Careers at Ylsoo</title>
+              <link rel="stylesheet" href="/css/style.css" />
+              <style>
+                body {
+                  background: #f9fafb;
+                  color: #111827;
+                  font-family: 'Inter', system-ui, sans-serif;
+                  margin: 0;
+                  padding: 0;
+                }
+                main {
+                  max-width: 880px;
+                  margin: 4rem auto;
+                  background: #ffffff;
+                  border-radius: 16px;
+                  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+                  padding: 3rem 2rem;
+                }
+                h1 {
+                  font-size: 2.2rem;
+                  font-weight: 700;
+                  margin-bottom: 0.4rem;
+                }
+                .meta {
+                  color: #6b7280;
+                  margin-bottom: 1.5rem;
+                  font-size: 0.95rem;
+                }
+                .req-box {
+                  background: #f3f4f6;
+                  border-left: 4px solid #111827;
+                  padding: 1rem 1.4rem;
+                  border-radius: 10px;
+                  margin-bottom: 2rem;
+                }
+                .req-box strong {
+                  display: block;
+                  font-size: 1rem;
+                  color: #111827;
+                  margin-bottom: 0.3rem;
+                }
+                .req-box p {
+                  color: #374151;
+                  font-size: 0.95rem;
+                  margin: 0;
+                  line-height: 1.5;
+                }
+                section {
+                  margin-bottom: 2rem;
+                }
+                h2 {
+                  font-size: 1.4rem;
+                  margin-bottom: 0.6rem;
+                  font-weight: 600;
+                  color: #111827;
+                }
+                pre {
+                  white-space: pre-wrap;
+                  font-family: inherit;
+                  font-size: 0.95rem;
+                  color: #374151;
+                  line-height: 1.6;
+                  background: #f9fafb;
+                  padding: 0.8rem 1rem;
+                  border-radius: 8px;
+                }
+                .apply-btn {
+                  display: inline-block;
+                  background: #111827;
+                  color: #ffffff;
+                  padding: 0.7rem 1.4rem;
+                  border-radius: 8px;
+                  text-decoration: none;
+                  font-weight: 500;
+                  transition: background 0.25s ease;
+                }
+                .apply-btn:hover {
+                  background: #1f2937;
+                }
+                .divider {
+                  height: 1px;
+                  background: #e5e7eb;
+                  margin: 2rem 0;
+                }
+                .footer-note {
+                  text-align: center;
+                  font-size: 0.9rem;
+                  color: #9ca3af;
+                  margin-top: 1rem;
+                }
+              </style>
+            </head>
+            <body>
+              <%- include('partials/navbar', { user }) %>
+
+              <main>
+                <h1><%= job.title %></h1>
+                <div class="meta">
+                  <%= job.department || 'General' %> · <%= job.location %> · <%= job.employment_type %>
+                </div>
+
+                <!-- ✅ Dynamic Requirement Info -->
+                <div class="req-box">
+                  <strong>Location Requirements</strong>
+                  <p><%= requirementNote %></p>
+                </div>
+
+                <section>
+                  <p><%= job.description %></p>
+                </section>
+
+                <% if (job.responsibilities) { %>
+                  <section>
+                    <h2>Responsibilities</h2>
+                    <pre><%= job.responsibilities %></pre>
+                  </section>
+                <% } %>
+
+                <% if (job.qualifications) { %>
+                  <section>
+                    <h2>Qualifications</h2>
+                    <pre><%= job.qualifications %></pre>
+                  </section>
+                <% } %>
+
+                <div class="divider"></div>
+
+                <a href="mailto:careers@ylsoo.com?subject=Application for <%= job.title %>" class="apply-btn">Apply now →</a>
+
+                <div class="footer-note">
+                  &copy; <%= new Date().getFullYear() %> Ylsoo Inc. | Ethical AI. Global Future.
+                </div>
+              </main>
+
+              <%- include('partials/footer') %>
+            </body>
+            </html>

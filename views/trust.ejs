@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trust Center | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .trust-header {
+      text-align: center;
+      padding: 80px 20px 40px;
+    }
+    .trust-header h1 {
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--dark-text);
+    }
+    .trust-header p {
+      color: var(--mid-gray);
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .trust-sections {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 5% 80px;
+    }
+    .trust-section {
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .trust-section h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .trust-section p {
+      color: var(--dark-text);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/journey">Journey</a>
+          <a href="/trust" class="active">Trust</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="trust-header">
+    <h1>Ylsoo Trust Center</h1>
+    <p>Transparency, security, and reliability — the foundation of every product we build.</p>
+  </section>
+
+  <div class="trust-sections">
+    <div class="trust-section">
+      <h2>🔐 Data Security</h2>
+      <p>We use enterprise-grade encryption for data at rest and in transit. All information stored within Ylsoo systems is protected using industry-leading practices, regularly reviewed by internal audits.</p>
+    </div>
+
+    <div class="trust-section">
+      <h2>🧾 Privacy & Compliance</h2>
+      <p>Ylsoo complies with GDPR and modern data privacy regulations. We believe users should have control over their personal data — from deletion requests to export rights.</p>
+    </div>
+
+    <div class="trust-section">
+      <h2>☁️ Reliability</h2>
+      <p>Our cloud infrastructure is built on highly available, redundant systems to ensure uptime and performance. We maintain 99.9% availability across our core services.</p>
+    </div>
+
+    <div class="trust-section">
+      <h2>👩‍💻 Responsible AI</h2>
+      <p>We believe innovation should serve humanity. Every AI-driven feature we build follows ethical guidelines to ensure fairness, accountability, and transparency.</p>
+    </div>
+
+    <div class="trust-section">
+      <h2>📈 Transparency</h2>
+      <p>We’re open about how Ylsoo operates. Our public changelog and system status updates are always available for review, and we publish annual transparency reports.</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

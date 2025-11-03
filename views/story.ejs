@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= story ? story.name + ' - Story | Ylsoo' : 'Story Not Found' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .story-container {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 5%;
+    }
+
+    .story-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .story-header img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 16px;
+    }
+
+    .story-header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .story-header p {
+      color: var(--mid-gray);
+      font-size: 16px;
+    }
+
+    .story-body {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--dark-text);
+      white-space: pre-line;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 32px;
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .not-found {
+      text-align: center;
+      color: var(--mid-gray);
+      margin-top: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/stories">Stories</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <% if (story) { %>
+    <div class="story-container">
+      <div class="story-header">
+        <img src="<%= story.photo_url || 'https://via.placeholder.com/120' %>" alt="<%= story.name %>">
+        <h1><%= story.name %></h1>
+        <p><%= story.title || '' %></p>
+      </div>
+      <div class="story-body"><%= story.story %></div>
+      <a href="/stories" class="back-link">← Back to Stories</a>
+    </div>
+  <% } else { %>
+    <div class="not-found">
+      <h2>Story not found</h2>
+      <a href="/stories" class="back-link">← Back to Stories</a>
+    </div>
+  <% } %>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

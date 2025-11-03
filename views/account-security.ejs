@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Security - Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .security-container {
+      max-width: 700px;
+      margin: 3rem auto;
+      background: #fff;
+      padding: 2rem 3rem;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      background: #0078D4;
+      border: none;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #005ea6;
+    }
+
+    .divider {
+      margin: 2rem 0;
+      border-top: 1px solid #eee;
+    }
+
+    .message {
+      background: #e0f7e9;
+      color: #047857;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .error {
+      background: #fde8e8;
+      color: #b91c1c;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar', { user }); %>
+
+  <div class="security-container">
+    <h1>Security Settings</h1>
+    <% if (message) { %><div class="message"><%= message %></div><% } %>
+    <% if (error) { %><div class="error"><%= error %></div><% } %>
+
+    <!-- Change Email -->
+    <form action="/api/account/change-email" method="POST">
+      <div class="form-group">
+        <label>New Email</label>
+        <input type="email" name="newEmail" required placeholder="Enter new email">
+      </div>
+      <button type="submit">Update Email</button>
+    </form>
+
+    <div class="divider"></div>
+
+    <!-- Change Password -->
+    <form id="request-code-form" onsubmit="requestCode(event)">
+      <h3>Change Password</h3>
+      <p>First, request a verification code.</p>
+      <button type="submit">Send Verification Code</button>
+    </form>
+
+    <form id="change-password-form" action="/api/account/change-password" method="POST" style="display:none;">
+      <div class="form-group">
+        <label>Verification Code</label>
+        <input type="text" name="code" maxlength="6" required placeholder="Enter 6-digit code">
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" name="newPassword" required placeholder="Enter new password">
+      </div>
+      <button type="submit">Change Password</button>
+    </form>
+  </div>
+
+  <script>
+    async function requestCode(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const res = await fetch('/api/account/request-password-code', { method: 'POST' });
+      const data = await res.json();
+
+      if (data.success) {
+        alert('Verification code sent to your email.');
+        document.getElementById('change-password-form').style.display = 'block';
+      } else {
+        alert('Failed to send code. Try again later.');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Send Verification Code';
+    }
+  </script>
+
+  <%- include('partials/footer'); %>
+</body>
+</html>

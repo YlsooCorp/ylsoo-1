@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Roadmap – Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .roadmap-container {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 20px;
+    }
+    .roadmap-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .roadmap-header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .roadmap-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .roadmap-column {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .column-header {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .roadmap-item {
+      border-left: 3px solid #0ea5e9;
+      padding-left: 12px;
+      margin-bottom: 18px;
+    }
+    .roadmap-item h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .roadmap-item p {
+      margin: 4px 0 6px;
+      color: #475569;
+      font-size: 0.9rem;
+    }
+    .tag {
+      background: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: #334155;
+    }
+    .planned .column-header { color: #64748b; }
+    .in-progress .column-header { color: #0ea5e9; }
+    .shipped .column-header { color: #22c55e; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="logo">Ylsoo</a>
+      <div class="nav-links">
+        <a href="/dashboard">Account</a>
+        <a href="/labs">Labs</a>
+        <a href="/ethical-ai">Ethical AI</a>
+        <a href="/roadmap" class="active">Roadmap</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="roadmap-container">
+    <div class="roadmap-header">
+      <h1>Ylsoo Product Roadmap</h1>
+      <p>See what we’re building, improving, and shipping next.</p>
+    </div>
+
+    <div class="roadmap-columns">
+      <div class="roadmap-column planned">
+        <div class="column-header">🧭 Planned</div>
+        <% if (grouped.planned.length === 0) { %>
+          <p>No planned features yet.</p>
+        <% } else { %>
+          <% grouped.planned.forEach(item => { %>
+            <div class="roadmap-item">
+              <h3><%= item.title %></h3>
+              <p><%= item.description %></p>
+              <span class="tag"><%= item.target_quarter || 'TBA' %></span>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+
+      <div class="roadmap-column in-progress">
+        <div class="column-header">⚙️ In Progress</div>
+        <% if (grouped.in_progress.length === 0) { %>
+          <p>No features currently in development.</p>
+        <% } else { %>
+          <% grouped.in_progress.forEach(item => { %>
+            <div class="roadmap-item">
+              <h3><%= item.title %></h3>
+              <p><%= item.description %></p>
+              <span class="tag"><%= item.target_quarter || 'TBA' %></span>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+
+      <div class="roadmap-column shipped">
+        <div class="column-header">🚀 Shipped</div>
+        <% if (grouped.shipped.length === 0) { %>
+          <p>No features shipped yet.</p>
+        <% } else { %>
+          <% grouped.shipped.forEach(item => { %>
+            <div class="roadmap-item">
+              <h3><%= item.title %></h3>
+              <p><%= item.description %></p>
+              <span class="tag"><%= item.target_quarter || 'Done' %></span>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog – Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    main {
+      max-width: 900px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+    .entry {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 1.5rem 0;
+    }
+    .entry:last-child { border: none; }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .meta {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    a.read-more {
+      color: #2563eb;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    a.read-more:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar', { user }) %>
+
+  <main>
+    <h1 style="font-size:2rem;font-weight:800;margin-bottom:1rem;">Product Changelog</h1>
+    <p style="color:#475569;margin-bottom:2rem;">See what’s new, improved, and fixed in Ylsoo.</p>
+
+    <% if (changelogs.length === 0) { %>
+      <p>No changelog entries yet.</p>
+    <% } else { %>
+      <% changelogs.forEach(log => { %>
+        <div class="entry">
+          <h2><a href="/changes/<%= log.id %>" style="color:#111827;text-decoration:none;"><%= log.title %></a></h2>
+          <div class="meta">
+            <%= log.version ? `Version ${log.version} · ` : '' %>
+            <%= new Date(log.release_date).toLocaleDateString() %>
+          </div>
+          <p><%= log.description.slice(0, 180) %>...</p>
+          <a href="/changes/<%= log.id %>" class="read-more">Read more →</a>
+        </div>
+      <% }) %>
+    <% } %>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

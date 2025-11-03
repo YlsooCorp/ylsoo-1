@@ -1,0 +1,140 @@
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Ylsoo Labs | Innovation at Work</title>
+              <link rel="stylesheet" href="/css/style.css">
+              <style>
+                .labs-header {
+                  text-align: center;
+                  padding: 100px 20px 60px;
+                }
+                .labs-header h1 { font-size: 42px; font-weight: 700; color: var(--dark-text); }
+                .labs-header p { font-size: 18px; color: var(--mid-gray); max-width: 700px; margin: 20px auto 0; }
+                .labs-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                  gap: 24px;
+                  max-width: 1200px;
+                  margin: 0 auto;
+                  padding: 40px 20px 100px;
+                }
+                .lab-card {
+                  background: var(--white);
+                  border: 1px solid var(--border-color);
+                  border-radius: 14px;
+                  padding: 32px;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                  transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+                .lab-card:hover {
+                  transform: translateY(-4px);
+                  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+                }
+                .lab-icon {
+                  width: 56px; height: 56px;
+                  display: flex; align-items: center; justify-content: center;
+                  border-radius: 14px; margin-bottom: 20px;
+                }
+                .lab-card h3 { font-size: 22px; margin-bottom: 10px; }
+                .lab-card p { font-size: 15px; color: var(--mid-gray); line-height: 1.6; }
+              </style>
+            </head>
+            <body>
+              <!-- Navbar -->
+              <nav class="navbar">
+                <div class="container">
+                  <div class="nav-content">
+                    <div class="nav-left">
+                      <a href="/" class="logo">Ylsoo</a>
+                      <div class="nav-links">
+                        <a href="/">Home</a>
+                        <a href="/journey">Journey</a>
+                        <a href="/trust">Trust</a>
+                        <a href="/sustainability">Sustainability</a>
+                        <a href="/labs" class="active">Labs</a>
+                      </div>
+                    </div>
+                    <div class="nav-right">
+                      <% if (user) { %>
+                        <a href="/dashboard" class="btn-text">Dashboard</a>
+                        <button onclick="logout()" class="btn-primary">Sign out</button>
+                      <% } else { %>
+                        <a href="/login" class="btn-text">Sign in</a>
+                        <a href="/signup" class="btn-primary">Sign up</a>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+
+              <!-- Labs Header -->
+              <section class="labs-header">
+                <h1>Ylsoo Labs</h1>
+                <p>Where curiosity meets creation — our teams experiment with AI, sustainable computing, and next-gen human-centered innovation.</p>
+              </section>
+
+              <!-- Labs Grid -->
+              <div class="labs-grid">
+                <% if (labs && labs.length > 0) { %>
+                  <% labs.forEach(lab => { %>
+                    <div class="lab-card">
+                      <div class="lab-icon" style="background: linear-gradient(135deg,<%= lab.gradient_start %>,<%= lab.gradient_end %>);">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                          <%= lab.icon_svg %>
+                        </svg>
+                      </div>
+                      <h3><%= lab.title %></h3>
+                      <p><%= lab.description %></p>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <p style="text-align:center; color:var(--mid-gray); font-size:16px;">No active lab projects found.</p>
+                <% } %>
+              </div>
+
+              <!-- CTA -->
+              <section class="cta">
+                <div class="container">
+                  <div class="cta-content">
+                    <h2>Join the Experiment</h2>
+                    <p>Have a research idea? Partner with Ylsoo Labs to push boundaries of what’s possible.</p>
+                    <a href="/contact" class="btn-large btn-white">Collaborate with Us</a>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Footer -->
+              <footer class="footer">
+                <div class="container">
+                  <div class="footer-grid">
+                    <div class="footer-col">
+                      <h4>Innovation</h4>
+                      <a href="/labs">Ylsoo Labs</a>
+                      <a href="/sustainability">Sustainability</a>
+                      <a href="/trust">Trust Center</a>
+                      <a href="/status">System Status</a>
+                    </div>
+                    <div class="footer-col">
+                      <h4>Company</h4>
+                      <a href="/about">About</a>
+                      <a href="/partners">Partners</a>
+                      <a href="/contact">Contact</a>
+                    </div>
+                  </div>
+                  <div class="footer-bottom">
+                    <p>&copy; <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+                  </div>
+                </div>
+              </footer>
+
+              <script>
+                async function logout() {
+                  const res = await fetch('/api/logout', { method: 'POST' });
+                  const data = await res.json();
+                  if (data.success) window.location.href = data.redirect;
+                }
+              </script>
+            </body>
+            </html>

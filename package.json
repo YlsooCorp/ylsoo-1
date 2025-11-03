@@ -1,0 +1,30 @@
+{
+  "name": "ylsoo-website",
+  "version": "1.0.0",
+  "description": "Ylsoo corporate website with authentication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "ylsoo",
+    "corporate",
+    "website"
+  ],
+  "author": "Ylsoo",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.78.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.2",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
+    "resend": "^6.4.0",
+    "stripe": "^19.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

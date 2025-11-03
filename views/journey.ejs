@@ -1,0 +1,174 @@
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Our Journey | Ylsoo</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <style>
+          .journey-header {
+            text-align: center;
+            padding: 80px 20px 40px;
+          }
+
+          .journey-header h1 {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--dark-text);
+          }
+
+          .journey-header p {
+            font-size: 16px;
+            color: var(--mid-gray);
+            margin-top: 10px;
+          }
+
+          /* Modern timeline */
+          .journey-timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 60px auto 100px;
+            padding: 0 20px;
+          }
+
+          .journey-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--border-color);
+            transform: translateX(-50%);
+            z-index: 1;
+          }
+
+          .journey-item {
+            position: relative;
+            width: 100%;
+            margin: 40px 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+          }
+
+          .journey-item:nth-child(even) {
+            flex-direction: row-reverse;
+          }
+
+          .journey-icon {
+            background: var(--primary-blue);
+            color: var(--white);
+            font-size: 22px;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 6px var(--white);
+          }
+
+          .journey-content {
+            background: var(--white);
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            width: 45%;
+            z-index: 2;
+          }
+
+          .journey-item:nth-child(odd) .journey-content {
+            margin-left: 20px;
+          }
+
+          .journey-item:nth-child(even) .journey-content {
+            margin-right: 20px;
+          }
+
+          .journey-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+          }
+
+          .journey-content p {
+            font-size: 15px;
+            color: var(--mid-gray);
+            line-height: 1.6;
+          }
+
+          @media (max-width: 768px) {
+            .journey-line {
+              left: 24px;
+            }
+
+            .journey-item {
+              flex-direction: row !important;
+              align-items: flex-start;
+            }
+
+            .journey-icon {
+              width: 36px;
+              height: 36px;
+              font-size: 18px;
+              margin-top: 4px;
+            }
+
+            .journey-content {
+              width: calc(100% - 70px);
+              margin-left: 16px !important;
+            }
+          }
+        </style>
+      </head>
+      <body>
+
+        <nav class="navbar">
+          <div class="container nav-content">
+            <div class="nav-left">
+              <a href="/" class="logo">Ylsoo</a>
+              <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/stories">Stories</a>
+                <a href="/partners">Partners</a>
+                <a href="/journey" class="active">Journey</a>
+                <a href="/trust">Trust</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <section class="journey-header">
+          <h1>Our Journey</h1>
+          <p>From humble beginnings to global innovation — this is how Ylsoo grew step by step.</p>
+        </section>
+
+        <div class="journey-timeline">
+          <div class="journey-line"></div>
+          <% if (milestones.length > 0) { %>
+            <% milestones.forEach((m) => { %>
+              <div class="journey-item">
+                <div class="journey-icon"><%= m.icon || "💡" %></div>
+                <div class="journey-content">
+                  <h3><%= m.year %> — <%= m.title %></h3>
+                  <p><%= m.description %></p>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p style="text-align:center; color: var(--mid-gray);">No journey data yet — coming soon.</p>
+          <% } %>
+        </div>
+
+        <footer class="footer">
+          <div class="container">
+            <div class="footer-bottom">
+              <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+
+      </body>
+      </html>

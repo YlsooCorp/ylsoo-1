@@ -1,0 +1,147 @@
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Privacy Policy | Ylsoo</title>
+            <link rel="stylesheet" href="/css/style.css">
+          </head>
+          <body>
+
+            <!-- Navigation -->
+            <nav class="navbar">
+              <div class="container nav-content">
+                <div class="nav-left">
+                  <a href="/" class="logo">Ylsoo</a>
+                  <div class="nav-links">
+                    <a href="/">Home</a>
+                    <a href="/terms">Terms of Service</a>
+                    <a href="/privacy">Privacy Policy</a>
+                  </div>
+                </div>
+                <div class="nav-right">
+                  <% if (user) { %>
+                    <a href="/dashboard" class="btn-text"><%= user.name %></a>
+                    <form id="logoutForm" method="POST" action="/api/logout" style="display:inline;">
+                      <button type="submit" class="btn-secondary">Log out</button>
+                    </form>
+                  <% } else { %>
+                    <a href="/login" class="btn-text">Sign in</a>
+                    <a href="/signup" class="btn-primary">Sign up</a>
+                  <% } %>
+                </div>
+              </div>
+            </nav>
+
+            <!-- Privacy Policy Content -->
+            <section class="legal-document">
+              <div class="legal-container">
+                <div class="legal-header">
+                  <h1>Privacy Policy</h1>
+                  <p class="legal-date">Last updated: <%= new Date().toLocaleDateString('en-US') %></p>
+                </div>
+
+                <div class="legal-content">
+
+                  <div class="legal-section">
+                    <h2>1. Introduction</h2>
+                    <p>Your privacy is important to us. This Privacy Policy explains how Ylsoo collects, uses, and protects your personal information when you use our website and services.</p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>2. Data Controller</h2>
+                    <p>The data controller responsible for your information is:</p>
+                    <div class="contact-info">
+                      <strong>Ylsoo</strong>
+                      Email: <a href="mailto:privacy@ylsoo.com">privacy@ylsoo.com</a><br>
+                      Location: Germany / EU
+                    </div>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>3. Information We Collect</h2>
+                    <p>We collect and process personal data that you provide when using our services, such as:</p>
+                    <ul>
+                      <li>Name and email address during registration</li>
+                      <li>Login credentials and authentication data</li>
+                      <li>Usage information (such as login times and activity logs)</li>
+                    </ul>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>4. How We Use Your Information</h2>
+                    <p>We use your data to:</p>
+                    <ul>
+                      <li>Provide and maintain your Ylsoo account</li>
+                      <li>Improve our website and user experience</li>
+                      <li>Communicate with you regarding your account or support inquiries</li>
+                    </ul>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>5. Legal Basis for Processing</h2>
+                    <p>We process your data based on your consent (Art. 6(1)(a) GDPR), the performance of a contract (Art. 6(1)(b) GDPR), or our legitimate interests (Art. 6(1)(f) GDPR) in providing a secure and efficient service.</p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>6. Data Storage and Security</h2>
+                    <p>Your data is securely stored using <strong>Supabase</strong> infrastructure within the European Union. We implement industry-standard security measures to protect against unauthorized access, disclosure, or loss of your data.</p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>7. Cookies</h2>
+                    <p>Our website uses cookies to enhance functionality and improve your user experience. You can disable cookies in your browser settings, but some parts of the site may not function properly as a result.</p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>8. Data Sharing</h2>
+                    <p>We do not share your personal data with third parties, except when legally required or necessary for providing our services (e.g., Supabase authentication).</p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>9. Your Rights (under GDPR)</h2>
+                    <p>You have the right to:</p>
+                    <ul>
+                      <li>Access your stored data</li>
+                      <li>Request correction or deletion of your data</li>
+                      <li>Restrict or object to data processing</li>
+                      <li>Request data portability</li>
+                      <li>Withdraw consent at any time</li>
+                    </ul>
+                    <p>To exercise these rights, contact us at: <a href="mailto:privacy@ylsoo.com">privacy@ylsoo.com</a></p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>10. Data Retention</h2>
+                    <p>We retain your personal information only as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required by law.</p>
+                  </div>
+
+                  <div class="legal-section">
+                    <h2>11. Updates to This Policy</h2>
+                    <p>We may update this Privacy Policy periodically. Any significant changes will be communicated on our website with a new “last updated” date.</p>
+                  </div>
+
+                  <div class="legal-footer">
+                    <p>If you have any questions about this Privacy Policy, please contact our data protection team.</p>
+                    <div class="legal-links">
+                      <a href="/terms">Terms of Service</a>
+                      <span>•</span>
+                      <a href="/">Return to Home</a>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+              <div class="container">
+                <div class="footer-bottom">
+                  <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+                </div>
+              </div>
+            </footer>
+
+          </body>
+          </html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in - Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <a href="/">Ylsoo</a>
+      </div>
+
+      <h2 class="auth-title">Sign in</h2>
+      <p class="auth-subtitle">to continue to Ylsoo</p>
+
+      <div id="error-container"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input" 
+            required
+            placeholder="you@example.com"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-input" 
+            required
+            placeholder="Enter your password"
+          >
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">
+          Sign in
+        </button>
+      </form>
+
+      <div class="auth-link">
+        Don't have an account? <a href="/signup">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorContainer = document.getElementById('error-container');
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirect;
+        } else {
+          errorContainer.innerHTML = `<div class="error-message">${data.error}</div>`;
+        }
+      } catch (error) {
+        errorContainer.innerHTML = `<div class="error-message">An error occurred. Please try again.</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

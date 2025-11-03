@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notification Settings - Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('partials/navbar', { user }); %>
+
+  <section class="settings-page container">
+    <h1 class="page-title">Notification Settings</h1>
+    <p class="page-subtitle">Control how Ylsoo keeps you informed</p>
+
+    <form action="/api/account/notifications" method="POST" class="settings-form">
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="email_updates" <%= preferences.email_updates ? 'checked' : '' %> />
+          Receive important email updates
+        </label>
+        <p class="note">We’ll notify you about changes to your account or security events.</p>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="marketing_emails" <%= preferences.marketing_emails ? 'checked' : '' %> />
+          Receive marketing and promotional emails
+        </label>
+        <p class="note">Get early access to new Ylsoo features, products, and offers.</p>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="security_alerts" <%= preferences.security_alerts ? 'checked' : '' %> />
+          Security alerts and login notifications
+        </label>
+        <p class="note">We’ll alert you about suspicious activity or new device sign-ins.</p>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="product_announcements" <%= preferences.product_announcements ? 'checked' : '' %> />
+          Product updates and announcements
+        </label>
+        <p class="note">Stay up to date with product releases and improvements.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Save Preferences</button>
+    </form>
+  </section>
+
+  <%- include('partials/footer'); %>
+</body>
+</html>

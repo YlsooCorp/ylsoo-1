@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>window.STRIPE_PUBLISHABLE_KEY = '<%= process.env.STRIPE_PUBLISHABLE_KEY %>'</script>
+</head>
+<body>
+  <%- include('partials/navbar', { user }) %>
+
+  <main class="container">
+    <h1>Billing & Payment Methods</h1>
+
+    <section>
+      <h2>Saved payment methods</h2>
+      <% if (methods && methods.length) { %>
+        <ul>
+          <% methods.forEach(m => { %>
+            <li><%= m.brand %> • **** <%= m.last4 %> • exp <%= m.exp_month %>/<%= m.exp_year %></li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p>No saved cards yet.</p>
+      <% } %>
+    </section>
+
+    <section>
+      <h2>Add new card</h2>
+      <form id="card-form">
+        <input id="billing-name" placeholder="Full name" required />
+        <input id="billing-email" placeholder="Email" value="<%= user.email %>" />
+        <div id="card-element" style="margin:10px 0;"></div>
+        <button type="submit" class="btn-primary">Save card</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="/js/billing.js"></script>
+</body>
+</html>

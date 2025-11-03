@@ -1,0 +1,169 @@
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                      <meta charset="UTF-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <title>Contact | Ylsoo</title>
+                      <link rel="stylesheet" href="/css/style.css">
+                      <style>
+                        /* Contact Page - Two Column Layout */
+                        .contact-section {
+                          max-width: 1100px;
+                          margin: 0 auto;
+                          padding: 40px 5%;
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: flex-start;
+                          gap: 60px;
+                        }
+
+                        .contact-left {
+                          flex: 1;
+                          min-width: 320px;
+                        }
+
+                        .contact-right {
+                          flex: 1;
+                          min-width: 380px;
+                        }
+
+                        .contact-left h2 {
+                          font-size: 28px;
+                          font-weight: 600;
+                          margin-bottom: 16px;
+                          color: var(--dark-text);
+                        }
+
+                        .contact-left p {
+                          font-size: 15px;
+                          margin-bottom: 16px;
+                          color: var(--dark-text);
+                          line-height: 1.8;
+                        }
+
+                        .contact-form {
+                          background: var(--white);
+                          padding: 32px;
+                          border: 1px solid var(--border-color);
+                          border-radius: 8px;
+                          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+                        }
+
+                        .contact-form h3 {
+                          font-size: 20px;
+                          font-weight: 600;
+                          margin-bottom: 16px;
+                          color: var(--dark-text);
+                        }
+
+                        @media (max-width: 900px) {
+                          .contact-section {
+                            flex-direction: column;
+                          }
+                          .contact-left, .contact-right {
+                            width: 100%;
+                          }
+                        }
+                      </style>
+                    </head>
+                    <body>
+
+                      <!-- Navigation -->
+                      <nav class="navbar">
+                        <div class="container nav-content">
+                          <div class="nav-left">
+                            <a href="/" class="logo">Ylsoo</a>
+                            <div class="nav-links">
+                              <a href="/">Home</a>
+                              <a href="/about">About</a>
+                              <a href="/contact">Contact</a>
+                              <a href="/terms">Terms</a>
+                              <a href="/privacy">Privacy</a>
+                            </div>
+                          </div>
+                          <div class="nav-right">
+                            <% if (user) { %>
+                              <a href="/dashboard" class="btn-text"><%= user.name %></a>
+                              <form method="POST" action="/api/logout" style="display:inline;">
+                                <button type="submit" class="btn-secondary">Log out</button>
+                              </form>
+                            <% } else { %>
+                              <a href="/login" class="btn-text">Sign in</a>
+                              <a href="/signup" class="btn-primary">Sign up</a>
+                            <% } %>
+                          </div>
+                        </div>
+                      </nav>
+
+                      <!-- Page Header -->
+                      <section class="legal-document">
+                        <div class="legal-container">
+                          <div class="legal-header">
+                            <h1>Contact Us</h1>
+                            <p class="legal-date">We’d love to hear from you</p>
+                          </div>
+
+                          <!-- Two-column layout -->
+                          <div class="contact-section">
+                            <!-- Left -->
+                            <div class="contact-left">
+                              <h2>Get in Touch</h2>
+                              <p>Have a question about Ylsoo, need support, or want to collaborate?  
+                              We’re always here to help — our team usually responds within 1–2 business days.</p>
+
+                              <h3>Business & Support</h3>
+                              <div class="contact-info">
+                                <strong>Email:</strong> <a href="mailto:business@ylsoo.com">business@ylsoo.com</a><br>
+                                <strong>Support:</strong> <a href="mailto:support@ylsoo.com">support@ylsoo.com</a><br>
+                                <strong>Address:</strong> Berlin, Germany
+                              </div>
+                            </div>
+
+                            <!-- Right -->
+                            <div class="contact-right">
+                              <div class="contact-form">
+                                <h3>Send us a Message</h3>
+                                <form action="mailto:contact@ylsoo.com" method="POST" enctype="text/plain">
+                                  <div class="form-group">
+                                    <label for="name" class="form-label">Your Name</label>
+                                    <input type="text" id="name" name="name" class="form-input" required>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label for="email" class="form-label">Your Email</label>
+                                    <input type="email" id="email" name="email" class="form-input" required>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea id="message" name="message" rows="6" class="form-input" required></textarea>
+                                  </div>
+
+                                  <button type="submit" class="btn-primary btn-large" style="margin-top: 8px;">Send Message</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="legal-footer">
+                            <p>Your message will remain confidential — we never share personal information.</p>
+                            <div class="legal-links">
+                              <a href="/about">About</a>
+                              <span>•</span>
+                              <a href="/">Home</a>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <!-- Footer -->
+                      <footer class="footer">
+                        <div class="container">
+                          <div class="footer-bottom">
+                            <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+                          </div>
+                        </div>
+                      </footer>
+
+                    </body>
+                    </html>

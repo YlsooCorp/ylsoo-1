@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <% if (user) { %>
+          <a href="/dashboard" class="btn-text"><%= user.name %></a>
+          <form method="POST" action="/api/logout" style="display:inline;">
+            <button type="submit" class="btn-secondary">Log out</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn-text">Sign in</a>
+          <a href="/signup" class="btn-primary">Sign up</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- About Page Content -->
+  <section class="legal-document">
+    <div class="legal-container">
+      <div class="legal-header">
+        <h1>About Ylsoo</h1>
+        <p class="legal-date">Our story, mission, and purpose</p>
+      </div>
+
+      <div class="legal-content">
+        <div class="legal-section">
+          <h2>Our Mission</h2>
+          <p>Ylsoo was created with one goal: to make modern digital account management simpler, safer, and more personal. We believe technology should serve users — not overwhelm them.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>Who We Are</h2>
+          <p>We’re a small but passionate team of developers and designers who love building intuitive tools that empower individuals to take control of their online identity. Ylsoo represents reliability, transparency, and ease of use.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>Our Values</h2>
+          <ul>
+            <li><strong>Privacy First:</strong> Your data belongs to you. Always.</li>
+            <li><strong>Simplicity:</strong> Technology should make life easier — not harder.</li>
+            <li><strong>Trust:</strong> We build transparent systems backed by secure technology.</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>Our Technology</h2>
+          <p>Ylsoo is built using modern web technologies including <strong>Node.js</strong>, <strong>Express</strong>, and <strong>Supabase</strong>. This combination ensures reliability, scalability, and secure authentication for all users.</p>
+        </div>
+
+        <div class="legal-footer">
+          <p>Interested in working with us or learning more about Ylsoo?</p>
+          <div class="legal-links">
+            <a href="/contact">Contact Us</a>
+            <span>•</span>
+            <a href="/">Back to Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

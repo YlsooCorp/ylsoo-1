@@ -1,0 +1,144 @@
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Stories | Ylsoo</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <style>
+          .stories-header {
+            text-align: center;
+            margin: 60px 0 40px;
+          }
+
+          .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            padding: 0 5%;
+            margin-bottom: 80px;
+          }
+
+          .story-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            padding: 24px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+          }
+
+          .story-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          }
+
+          .story-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 16px;
+          }
+
+          .story-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 4px;
+          }
+
+          .story-title {
+            font-size: 15px;
+            color: var(--mid-gray);
+            margin-bottom: 16px;
+          }
+
+          .story-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--dark-text);
+            margin-bottom: 20px;
+          }
+
+          .btn-read {
+            display: inline-block;
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+          }
+
+          .btn-read:hover {
+            background: var(--hover-blue);
+          }
+
+          .no-stories {
+            text-align: center;
+            color: var(--mid-gray);
+            font-size: 16px;
+            margin-top: 60px;
+          }
+        </style>
+      </head>
+      <body>
+
+        <nav class="navbar">
+          <div class="container nav-content">
+            <div class="nav-left">
+              <a href="/" class="logo">Ylsoo</a>
+              <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/stories">Stories</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+              </div>
+            </div>
+            <div class="nav-right">
+              <% if (user) { %>
+                <a href="/dashboard" class="btn-text"><%= user.name %></a>
+                <form method="POST" action="/api/logout" style="display:inline;">
+                  <button type="submit" class="btn-secondary">Logout</button>
+                </form>
+              <% } else { %>
+                <a href="/login" class="btn-text">Sign in</a>
+                <a href="/signup" class="btn-primary">Sign up</a>
+              <% } %>
+            </div>
+          </div>
+        </nav>
+
+        <section class="stories-header">
+          <h1>Our Stories</h1>
+          <p>Real experiences from leaders, creators, and innovators using Ylsoo.</p>
+        </section>
+
+        <% if (stories && stories.length > 0) { %>
+          <div class="stories-grid">
+            <% stories.forEach(story => { %>
+              <div class="story-card">
+                <img src="<%= story.photo_url || 'https://via.placeholder.com/80' %>" alt="<%= story.name %>" class="story-photo">
+                <div class="story-name"><%= story.name %></div>
+                <div class="story-title"><%= story.title || '' %></div>
+                <div class="story-text"><%= story.story.length > 150 ? story.story.substring(0, 150) + '...' : story.story %></div>
+                <a href="/story/<%= story.id %>" class="btn-read">Read</a>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="no-stories"><p>No stories yet — check back soon!</p></div>
+        <% } %>
+
+        <footer class="footer">
+          <div class="container">
+            <div class="footer-bottom">
+              <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+
+      </body>
+      </html>

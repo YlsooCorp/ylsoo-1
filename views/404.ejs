@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found - Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    main {
+      text-align: center;
+      padding: 8rem 2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 6rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 1rem;
+    }
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 1rem;
+    }
+    p {
+      color: #475569;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    a.button {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.25s ease;
+    }
+    a.button:hover {
+      background: #1d4ed8;
+    }
+    img {
+      max-width: 380px;
+      margin: 3rem auto 0;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar', { user }) %>
+
+  <main>
+    <h1>404</h1>
+    <h2>We couldn’t find that page</h2>
+    <p>It may have been moved or deleted — or perhaps it never existed.<br>Try returning to the homepage or exploring our products.</p>
+    <a href="/" class="button">Back to Home</a>
+
+    <img src="https://ucarecdn.com/a09fbb1a-09e7-44f4-a429-ee6cf7696fd2/Pngtreeuidefaultpagepage404_3801714.png" alt="Not Found Illustration" />
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

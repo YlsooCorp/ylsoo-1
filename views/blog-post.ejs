@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= post.title %> | Ylsoo Blog</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .post-header { text-align: center; padding: 100px 20px 40px; }
+    .post-header h1 { font-size: 42px; font-weight: 700; }
+    .post-meta { color: var(--mid-gray); margin-top: 8px; font-size: 15px; }
+    .post-body { max-width: 800px; margin: 0 auto; padding: 40px 20px 100px; line-height: 1.7; font-size: 17px; color: var(--dark-text); }
+    .post-body img { max-width: 100%; border-radius: 10px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar', { user }); %>
+
+  <section class="post-header">
+    <h1><%= post.title %></h1>
+    <p class="post-meta">By <%= post.author %> • <%= new Date(post.created_at).toLocaleDateString() %></p>
+  </section>
+
+  <% if (post.cover_image) { %>
+    <div style="text-align:center;">
+      <img src="<%= post.cover_image %>" alt="<%= post.title %>" style="max-width:90%; border-radius:16px;">
+    </div>
+  <% } %>
+
+  <div class="post-body">
+    <%- post.content.replace(/\n/g, '<br>') %>
+  </div>
+
+  <%- include('partials/footer'); %>
+</body>
+</html>

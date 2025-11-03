@@ -1,0 +1,146 @@
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Ethical AI | Ylsoo</title>
+              <link rel="stylesheet" href="/css/style.css">
+              <style>
+                .ethical-header { text-align: center; padding: 100px 20px 60px; }
+                .ethical-header h1 { font-size: 42px; font-weight: 700; color: var(--dark-text); }
+                .ethical-header p { font-size: 18px; color: var(--mid-gray); max-width: 700px; margin: 20px auto 0; }
+                .ethical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; padding: 60px 20px 100px; }
+                .ethical-card { background: var(--white); border: 1px solid var(--border-color); border-radius: 14px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+                .ethical-card:hover { transform: translateY(-4px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+                .ethical-icon { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 14px; margin-bottom: 20px; }
+                .ethical-card h3 { font-size: 22px; margin-bottom: 10px; }
+                .ethical-card p { font-size: 15px; color: var(--mid-gray); line-height: 1.6; }
+                .principles { background: var(--light-gray); padding: 80px 20px; text-align: center; }
+                .principles h2 { font-size: 34px; font-weight: 700; margin-bottom: 24px; }
+                .principles p { max-width: 800px; margin: 0 auto 40px; font-size: 17px; color: var(--mid-gray); }
+                .principle-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; max-width: 900px; margin: 0 auto; }
+                .principle-item { flex: 1 1 280px; background: var(--white); border: 1px solid var(--border-color); border-radius: 10px; padding: 24px; text-align: left; transition: all 0.2s ease; }
+                .principle-item:hover { border-color: var(--primary-blue); transform: translateY(-3px); }
+                .principle-item h4 { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--dark-text); }
+                .principle-item p { font-size: 15px; color: var(--mid-gray); }
+              </style>
+            </head>
+            <body>
+
+              <!-- Navbar -->
+              <nav class="navbar">
+                <div class="container">
+                  <div class="nav-content">
+                    <div class="nav-left">
+                      <a href="/" class="logo">Ylsoo</a>
+                      <div class="nav-links">
+                        <a href="/">Home</a>
+                        <a href="/labs">Labs</a>
+                        <a href="/sustainability">Sustainability</a>
+                        <a href="/trust">Trust</a>
+                        <a href="/ethical-ai" class="active">Ethical AI</a>
+                      </div>
+                    </div>
+                    <div class="nav-right">
+                      <% if (user) { %>
+                        <a href="/dashboard" class="btn-text">Dashboard</a>
+                        <button onclick="logout()" class="btn-primary">Sign out</button>
+                      <% } else { %>
+                        <a href="/login" class="btn-text">Sign in</a>
+                        <a href="/signup" class="btn-primary">Sign up</a>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+
+              <!-- Header -->
+              <section class="ethical-header">
+                <h1>Ethical AI at Ylsoo</h1>
+                <p>
+                  We believe that artificial intelligence must be transparent, responsible, and centered around human values.
+                  Ethics are built into every system we create — not added after.
+                </p>
+              </section>
+
+              <!-- Dynamic Pillars -->
+              <div class="ethical-grid">
+                <% if (pillars && pillars.length > 0) { %>
+                  <% pillars.forEach(pillar => { %>
+                    <div class="ethical-card">
+                      <div class="ethical-icon" style="background: linear-gradient(135deg,<%= pillar.gradient_start %>,<%= pillar.gradient_end %>);">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                          <%= pillar.icon_svg %>
+                        </svg>
+                      </div>
+                      <h3><%= pillar.title %></h3>
+                      <p><%= pillar.description %></p>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <p style="text-align:center; color:var(--mid-gray); font-size:16px;">No ethical pillars available yet.</p>
+                <% } %>
+              </div>
+
+              <!-- Dynamic Principles -->
+              <section class="principles">
+                <h2>Our Ethical Principles</h2>
+                <p>Every model and deployment follows these core values.</p>
+                <div class="principle-list">
+                  <% if (principles && principles.length > 0) { %>
+                    <% principles.forEach(p => { %>
+                      <div class="principle-item">
+                        <h4><%= p.title %></h4>
+                        <p><%= p.description %></p>
+                      </div>
+                    <% }) %>
+                  <% } else { %>
+                    <p style="color:var(--mid-gray); font-size:16px;">No principles defined yet.</p>
+                  <% } %>
+                </div>
+              </section>
+
+              <!-- CTA -->
+              <section class="cta">
+                <div class="container">
+                  <div class="cta-content">
+                    <h2>Building a Better Future</h2>
+                    <p>Ylsoo invites researchers and developers to help shape responsible AI.</p>
+                    <a href="/contact" class="btn-large btn-white">Collaborate with Us</a>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Footer -->
+              <footer class="footer">
+                <div class="container">
+                  <div class="footer-grid">
+                    <div class="footer-col">
+                      <h4>Innovation</h4>
+                      <a href="/labs">Ylsoo Labs</a>
+                      <a href="/ethical-ai">Ethical AI</a>
+                      <a href="/sustainability">Sustainability</a>
+                      <a href="/trust">Trust Center</a>
+                    </div>
+                    <div class="footer-col">
+                      <h4>Company</h4>
+                      <a href="/about">About</a>
+                      <a href="/partners">Partners</a>
+                      <a href="/contact">Contact</a>
+                    </div>
+                  </div>
+                  <div class="footer-bottom">
+                    <p>&copy; <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+                  </div>
+                </div>
+              </footer>
+
+              <script>
+                async function logout() {
+                  const res = await fetch('/api/logout', { method: 'POST' });
+                  const data = await res.json();
+                  if (data.success) window.location.href = data.redirect;
+                }
+              </script>
+            </body>
+            </html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Status | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .status-header { text-align: center; padding: 80px 20px 40px; }
+    .status-header h1 { font-size: 38px; font-weight: 700; color: var(--dark-text); }
+    .status-header p { color: var(--mid-gray); font-size: 16px; margin-top: 8px; }
+    .status-grid {
+      max-width: 900px; margin: 40px auto 60px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px; padding: 0 5%;
+    }
+    .status-card {
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 28px;
+      background: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .status-label { font-size: 14px; color: var(--mid-gray); margin-bottom: 6px; }
+    .status-value { font-size: 20px; font-weight: 600; }
+    .status-green { color: #2ecc71; }
+    .status-yellow { color: #f1c40f; }
+    .status-red { color: #e74c3c; }
+    .chart-box { max-width: 800px; margin: 40px auto; background: var(--white); padding: 32px; border-radius: 10px; border: 1px solid var(--border-color); }
+    .status-meta { text-align: center; color: var(--mid-gray); font-size: 14px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/journey">Journey</a>
+          <a href="/trust">Trust</a>
+          <a href="/status" class="active">Status</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="status-header">
+    <h1>Ylsoo System Status</h1>
+    <p>Monitoring our API, Ylsoo Core, and infrastructure in real time.</p>
+  </section>
+
+  <div class="status-grid">
+    <div class="status-card">
+      <div class="status-label">API Status</div>
+      <div class="status-value <%= status.api === 'Online' ? 'status-green' : 'status-yellow' %>"><%= status.api %></div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">Response Latency</div>
+      <div class="status-value"><%= status.latency %> ms</div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">Ylsoo Core Connection</div>
+      <div class="status-value <%= status.core === 'Online' ? 'status-green' : 'status-red' %>"><%= status.core %></div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">Server Uptime</div>
+      <div class="status-value"><%= Math.floor(status.uptime / 60) %> min</div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">Memory Usage</div>
+      <div class="status-value"><%= status.memory %> MB</div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">CPU Load</div>
+      <div class="status-value"><%= status.cpu %></div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3 style="text-align:center;margin-bottom:16px;">API Latency Trend</h3>
+    <canvas id="latencyChart" height="100"></canvas>
+  </div>
+
+  <div class="status-meta">
+    Last checked: <%= status.lastChecked %>  
+    <br>Refreshing every 30 seconds…
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Chart.js setup
+    const ctx = document.getElementById('latencyChart').getContext('2d');
+    const history = <%- JSON.stringify(history) %>;
+
+    const labels = history.map(h => new Date(h.timestamp).toLocaleTimeString());
+    const latencies = history.map(h => h.latency_ms);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'API Latency (ms)',
+          data: latencies,
+          borderColor: '#0078D4',
+          backgroundColor: 'rgba(0,120,212,0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    setTimeout(() => { window.location.reload(); }, 30000);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="/" class="logo">Ylsoo</a>
+          <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/journey">Journey</a>
+            <a href="/trust">Trust</a>
+            <a href="/sustainability" class="active">Sustainability</a>
+            <a href="/partners">Partners</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+          </div>
+        </div>
+        <div class="nav-right">
+          <% if (user) { %>
+            <a href="/dashboard" class="btn-text">Dashboard</a>
+            <button onclick="logout()" class="btn-primary">Sign out</button>
+          <% } else { %>
+            <a href="/login" class="btn-text">Sign in</a>
+            <a href="/signup" class="btn-primary">Sign up</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sustainability Page -->
+  <section class="legal-document">
+    <div class="legal-container">
+      <div class="legal-header">
+        <h1>Our Commitment to Sustainability</h1>
+        <p class="legal-date">Updated November 2025</p>
+      </div>
+
+      <div class="legal-content">
+        <div class="legal-section">
+          <h2>Driving Positive Change</h2>
+          <p>
+            At Ylsoo, we believe innovation should serve not only people but also the planet.  
+            Our mission is to empower organizations to create technology that is energy-efficient, scalable, and responsible.  
+            Every product and process at Ylsoo is designed to reduce waste, improve transparency, and maximize sustainability impact.
+          </p>
+        </div>
+
+        <div class="legal-section">
+          <h2>Our Sustainability Principles</h2>
+          <ul>
+            <li><strong>Carbon Conscious:</strong> We actively reduce emissions by hosting on carbon-neutral data centers and optimizing compute workloads.</li>
+            <li><strong>Responsible Innovation:</strong> Every line of code and feature is built with long-term impact in mind.</li>
+            <li><strong>Circular Design:</strong> We emphasize longevity, modularity, and minimal digital waste in our systems.</li>
+            <li><strong>Community Empowerment:</strong> We support tech education and green innovation across developing regions.</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>Our Impact Goals</h2>
+          <p>
+            Ylsoo is committed to measurable action.  
+            By 2030, we aim to achieve:
+          </p>
+          <ul>
+            <li>Net-zero operational carbon emissions.</li>
+            <li>100% renewable-powered infrastructure.</li>
+            <li>Full transparency in product lifecycle data.</li>
+            <li>Reinvestment of 3% of annual profits into sustainability programs.</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>Collaborating for a Greener Future</h2>
+          <p>
+            Sustainability is not a competition — it’s a collective mission.  
+            Ylsoo works with international partners, startups, and non-profits to drive progress toward a cleaner, fairer digital economy.  
+            We believe technology should lead the way toward a world that thrives on efficiency, equity, and shared innovation.
+          </p>
+        </div>
+
+        <div class="contact-info">
+          <strong>Contact Our Sustainability Team</strong>
+          <p>
+            Have a question or idea related to sustainability?  
+            Reach out to our environmental innovation team directly:
+            <br><a href="mailto:sustainability@ylsoo.com">sustainability@ylsoo.com</a>
+          </p>
+        </div>
+
+        <div class="legal-footer">
+          <p>Learn more about how we build trust and transparency into everything we do.</p>
+          <div class="legal-links">
+            <a href="/trust">Trust Center</a>
+            <span>|</span>
+            <a href="/status">System Status</a>
+            <span>|</span>
+            <a href="/partners">Our Partners</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Products</h4>
+          <a href="#">Ylsoo Cloud</a>
+          <a href="#">Ylsoo Analytics</a>
+          <a href="#">Ylsoo Workspace</a>
+          <a href="#">Ylsoo Security</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="#">Documentation</a>
+          <a href="#">API Reference</a>
+          <a href="#">Blog</a>
+          <a href="#">Support</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="/terms">Terms of Service</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/cookies">Cookie Policy</a>
+          <a href="/sustainability">Sustainability</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="/about">About Us</a>
+          <a href="/partners">Partners</a>
+          <a href="/contact">Contact</a>
+          <a href="/trust">Trust Center</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    async function logout() {
+      const res = await fetch('/api/logout', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) window.location.href = data.redirect;
+    }
+  </script>
+</body>
+</html>

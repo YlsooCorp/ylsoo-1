@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign up - Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <a href="/">Ylsoo</a>
+      </div>
+
+      <h2 class="auth-title">Create account</h2>
+      <p class="auth-subtitle">Get started with Ylsoo today</p>
+
+      <div id="error-container"></div>
+
+      <form id="signup-form">
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-input" 
+            required
+            placeholder="John Doe"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input" 
+            required
+            placeholder="you@example.com"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-input" 
+            required
+            minlength="6"
+            placeholder="At least 6 characters"
+          >
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">
+          Create account
+        </button>
+      </form>
+
+      <div class="auth-link">
+        Already have an account? <a href="/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorContainer = document.getElementById('error-container');
+
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirect;
+        } else {
+          errorContainer.innerHTML = `<div class="error-message">${data.error}</div>`;
+        }
+      } catch (error) {
+        errorContainer.innerHTML = `<div class="error-message">An error occurred. Please try again.</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

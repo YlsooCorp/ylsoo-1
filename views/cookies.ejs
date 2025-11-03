@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookies Policy | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/cookies">Cookies</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <% if (user) { %>
+          <a href="/dashboard" class="btn-text"><%= user.name %></a>
+          <form method="POST" action="/api/logout" style="display:inline;">
+            <button type="submit" class="btn-secondary">Log out</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn-text">Sign in</a>
+          <a href="/signup" class="btn-primary">Sign up</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Cookie Policy Content -->
+  <section class="legal-document">
+    <div class="legal-container">
+      <div class="legal-header">
+        <h1>Cookies Policy</h1>
+        <p class="legal-date">Last updated: November 1, <%= new Date().getFullYear() %></p>
+      </div>
+
+      <div class="legal-content">
+
+        <div class="legal-section">
+          <h2>1. Introduction</h2>
+          <p>This Cookies Policy explains what cookies are, how Ylsoo uses them, and how you can manage or disable them. By using our website, you agree to the use of cookies in accordance with this policy.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>2. What Are Cookies?</h2>
+          <p>Cookies are small text files placed on your device when you visit a website. They help the site remember your actions and preferences — such as login, language, and display settings — for a better user experience.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>3. How We Use Cookies</h2>
+          <p>We use cookies to:</p>
+          <ul>
+            <li>Keep you signed in to your account</li>
+            <li>Understand how you use our website and improve its performance</li>
+            <li>Store your preferences and session data</li>
+            <li>Provide secure authentication and prevent fraud</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>4. Types of Cookies We Use</h2>
+          <ul>
+            <li><strong>Essential Cookies:</strong> Required for the website to function (e.g., login and session cookies).</li>
+            <li><strong>Performance Cookies:</strong> Collect anonymous data about how you use Ylsoo.</li>
+            <li><strong>Functional Cookies:</strong> Remember your preferences, such as language or region.</li>
+            <li><strong>Analytics Cookies:</strong> Help us understand website traffic and user behavior through analytics tools like Supabase or optional third-party services.</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>5. Managing Cookies</h2>
+          <p>You can control or delete cookies at any time through your browser settings. Please note that disabling cookies may affect some functionality of Ylsoo, including account login or personalization features.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>6. Third-Party Cookies</h2>
+          <p>Some cookies may come from trusted third-party services that help us analyze usage or provide integrations (for example, Supabase authentication). We do not use cookies for advertising or tracking across other sites.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>7. Updates to This Policy</h2>
+          <p>We may update this Cookies Policy from time to time. The latest version will always be available on this page with an updated “Last Updated” date.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>8. Contact Us</h2>
+          <div class="contact-info">
+            <strong>Ylsoo Support</strong>
+            <p>If you have any questions about our Cookies Policy, contact us at:</p>
+            <p><a href="mailto:support@ylsoo.com">support@ylsoo.com</a></p>
+          </div>
+        </div>
+
+        <div class="legal-footer">
+          <p>For more information, please read our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>
+          <div class="legal-links">
+            <a href="/">Home</a>
+            <span>•</span>
+            <a href="/contact">Contact</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Careers at Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { background: #f9fafb; color: #111827; font-family: 'Inter', sans-serif; }
+    .careers-header {
+      text-align: center;
+      padding: 4rem 1rem 2rem;
+    }
+    .careers-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .careers-header p {
+      color: #6b7280;
+      margin-top: .5rem;
+    }
+    .jobs-grid {
+      max-width: 900px;
+      margin: 2rem auto;
+      display: grid;
+      gap: 1rem;
+    }
+    .job-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.8rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .job-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 16px rgba(0,0,0,0.12);
+    }
+    .job-card h3 {
+      margin-bottom: 0.3rem;
+    }
+    .job-meta {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+    }
+    .btn-apply {
+      color: #fff;
+      background: #111827;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    .btn-apply:hover { background: #1f2937; }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar', { user }) %>
+
+  <section class="careers-header">
+    <h1>Join the Ylsoo Team</h1>
+    <p>We’re building the future of ethical, connected intelligence — together.</p>
+  </section>
+
+  <div class="jobs-grid">
+    <% if (jobs.length === 0) { %>
+      <p style="text-align:center;color:#6b7280;">No open positions right now. Check back soon!</p>
+    <% } %>
+    <% jobs.forEach(job => { %>
+      <div class="job-card">
+        <h3><%= job.title %></h3>
+        <div class="job-meta"><%= job.department || 'General' %> · <%= job.location %> · <%= job.employment_type %></div>
+        <p><%= job.description.length > 160 ? job.description.substring(0,160) + '...' : job.description %></p>
+        <a href="/careers/<%= job.id %>" class="btn-apply">View role →</a>
+      </div>
+    <% }) %>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

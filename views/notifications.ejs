@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Notifications - Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <%- include('partials/navbar', { user }); %>
+
+  <section class="container notifications-page">
+    <h1>Your Notifications</h1>
+    <p class="subtitle">Stay up to date with what’s happening on Ylsoo</p>
+
+    <div id="notifications-list" class="notifications-list">
+      <% if (notifications.length === 0) { %>
+        <p class="empty">You have no notifications yet.</p>
+      <% } else { %>
+        <% notifications.forEach(note => { %>
+          <div class="notification-card <%= note.is_read ? 'read' : 'unread' %>" data-id="<%= note.id %>">
+            <div class="notification-header">
+              <h3><%= note.title %></h3>
+              <small><%= new Date(note.created_at).toLocaleString() %></small>
+            </div>
+            <p><%= note.message %></p>
+            <% if (!note.is_read) { %>
+              <button class="btn-mark" onclick="markRead(<%= note.id %>)">Mark as read</button>
+            <% } %>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </section>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      '<%= process.env.SUPABASE_URL || "https://qjnwvmzrwxdtvapsuzgc.supabase.co" %>',
+      '<%= process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." %>'
+    );
+
+    // Listen for new notifications in real-time
+    supabase.channel('notifications')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, payload => {
+        if (payload.new.user_id === '<%= user.id %>') {
+          const list = document.getElementById('notifications-list');
+          const card = document.createElement('div');
+          card.classList.add('notification-card', 'unread');
+          card.innerHTML = `
+            <div class="notification-header">
+              <h3>${payload.new.title}</h3>
+              <small>${new Date(payload.new.created_at).toLocaleString()}</small>
+            </div>
+            <p>${payload.new.message}</p>
+            <button class="btn-mark" onclick="markRead(${payload.new.id})">Mark as read</button>
+          `;
+          list.prepend(card);
+        }
+      })
+      .subscribe();
+
+    async function markRead(id) {
+      await fetch('/api/notifications/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      document.querySelector(`[data-id='${id}']`)?.classList.add('read');
+    }
+  </script>
+
+  <style>
+    .notifications-page {
+      max-width: 700px;
+      margin: 3rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .notifications-list {
+      margin-top: 2rem;
+    }
+
+    .notification-card {
+      border: 1px solid #eee;
+      border-left: 5px solid #0078D4;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      transition: background 0.3s;
+    }
+
+    .notification-card.unread {
+      background: #f9fbff;
+    }
+
+    .notification-card.read {
+      opacity: 0.7;
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-mark {
+      background: none;
+      border: none;
+      color: #0078D4;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    .empty {
+      text-align: center;
+      color: #888;
+    }
+  </style>
+
+  <%- include('partials/footer'); %>
+</body>
+</html>

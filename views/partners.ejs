@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partners | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .partners-header {
+      text-align: center;
+      padding: 80px 20px 40px;
+    }
+
+    .partners-header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--dark-text);
+    }
+
+    .partners-header p {
+      font-size: 16px;
+      color: var(--mid-gray);
+      margin-top: 10px;
+    }
+
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 32px;
+      padding: 0 5% 80px;
+    }
+
+    .partner-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .partner-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .partner-logo {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 16px;
+      border-radius: 8px;
+    }
+
+    .partner-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark-text);
+      margin-bottom: 8px;
+    }
+
+    .partner-description {
+      color: var(--mid-gray);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .partner-link {
+      color: var(--primary-blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .partner-link:hover {
+      text-decoration: underline;
+    }
+
+    .no-partners {
+      text-align: center;
+      color: var(--mid-gray);
+      margin: 60px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/stories">Stories</a>
+          <a href="/partners" class="active">Partners</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <% if (user) { %>
+          <a href="/dashboard" class="btn-text"><%= user.name %></a>
+          <form method="POST" action="/api/logout" style="display:inline;">
+            <button type="submit" class="btn-secondary">Logout</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn-text">Sign in</a>
+          <a href="/signup" class="btn-primary">Sign up</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <section class="partners-header">
+    <h1>Our Partners</h1>
+    <p>We proudly collaborate with companies and organizations who share our vision of empowering innovation.</p>
+  </section>
+
+  <!-- Partners Grid -->
+  <% if (partners && partners.length > 0) { %>
+    <div class="partners-grid">
+      <% partners.forEach(p => { %>
+        <div class="partner-card">
+          <img src="<%= p.logo_url || 'https://via.placeholder.com/120x120?text=Logo' %>" alt="<%= p.name %>" class="partner-logo">
+          <div class="partner-name"><%= p.name %></div>
+          <div class="partner-description"><%= p.description || 'No description available.' %></div>
+          <% if (p.website_url) { %>
+            <a href="<%= p.website_url %>" class="partner-link" target="_blank">Visit Website →</a>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="no-partners">
+      <p>No partners have been added yet — check back soon!</p>
+    </div>
+  <% } %>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
