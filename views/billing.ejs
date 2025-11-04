@@ -1,40 +1,265 @@
-<!doctype html>
-<html>
-<head>
-  <link rel="stylesheet" href="/css/style.css">
-  <script>window.STRIPE_PUBLISHABLE_KEY = '<%= process.env.STRIPE_PUBLISHABLE_KEY %>'</script>
-</head>
-<body>
-  <%- include('partials/navbar', { user }) %>
+              <%- include('partials/navbar', { user }); %>
 
-  <main class="container">
-    <h1>Billing & Payment Methods</h1>
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Billing & Payments — Ylsoo</title>
 
-    <section>
-      <h2>Saved payment methods</h2>
-      <% if (methods && methods.length) { %>
-        <ul>
-          <% methods.forEach(m => { %>
-            <li><%= m.brand %> • **** <%= m.last4 %> • exp <%= m.exp_month %>/<%= m.exp_year %></li>
-          <% }) %>
-        </ul>
-      <% } else { %>
-        <p>No saved cards yet.</p>
-      <% } %>
-    </section>
+                <style>
+                  :root {
+                    --ylsoo-blue: #2563eb;
+                    --ylsoo-dark: #0f172a;
+                    --ylsoo-gray: #6b7280;
+                    --ylsoo-bg: #f9fafb;
+                    --radius: 1rem;
+                  }
 
-    <section>
-      <h2>Add new card</h2>
-      <form id="card-form">
-        <input id="billing-name" placeholder="Full name" required />
-        <input id="billing-email" placeholder="Email" value="<%= user.email %>" />
-        <div id="card-element" style="margin:10px 0;"></div>
-        <button type="submit" class="btn-primary">Save card</button>
-      </form>
-    </section>
-  </main>
+                  body {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    background-color: var(--ylsoo-bg);
+                    color: var(--ylsoo-dark);
+                    margin: 0;
+                    padding: 0;
+                  }
 
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="/js/billing.js"></script>
-</body>
-</html>
+                  main {
+                    max-width: 880px;
+                    margin: 0 auto;
+                    padding: 4rem 1.5rem;
+                  }
+
+                  h1 {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    margin-bottom: 2rem;
+                  }
+
+                  section {
+                    background: #fff;
+                    border-radius: var(--radius);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                    margin-bottom: 2rem;
+                    padding: 2rem;
+                    border: 1px solid #e5e7eb;
+                  }
+
+                  h2 {
+                    font-size: 1.25rem;
+                    margin-bottom: 1rem;
+                    color: var(--ylsoo-dark);
+                  }
+
+                  p {
+                    color: var(--ylsoo-gray);
+                    margin-bottom: 1rem;
+                  }
+
+                  ul {
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+                  }
+
+                  li {
+                    border-bottom: 1px solid #f3f4f6;
+                    padding: 0.75rem 0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  }
+
+                  input {
+                    width: 100%;
+                    padding: 0.75rem;
+                    border: 1px solid #d1d5db;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.75rem;
+                    font-size: 1rem;
+                    color: var(--ylsoo-dark);
+                  }
+
+                  input:focus {
+                    outline: none;
+                    border-color: var(--ylsoo-blue);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+                  }
+
+                  button {
+                    background-color: var(--ylsoo-blue);
+                    color: white;
+                    border: none;
+                    border-radius: 0.5rem;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    padding: 0.75rem 1.25rem;
+                    width: 100%;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                  }
+
+                  button:hover {
+                    background-color: #1d4ed8;
+                  }
+
+                  #card-element {
+                    border: 1px solid #d1d5db;
+                    border-radius: 0.5rem;
+                    padding: 1rem;
+                    background: #f9fafb;
+                    margin-bottom: 1rem;
+                  }
+
+                  #billing-message {
+                    display: none;
+                    margin-top: 1rem;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    font-size: 0.95rem;
+                    text-align: center;
+                  }
+
+                  #billing-message.success {
+                    background: #d1fae5;
+                    color: #065f46;
+                  }
+
+                  #billing-message.error {
+                    background: #fee2e2;
+                    color: #991b1b;
+                  }
+
+                  @media (max-width: 640px) {
+                    main { padding: 2rem 1rem; }
+                    h1 { font-size: 1.75rem; }
+                  }
+                </style>
+              </head>
+
+              <body>
+                <main>
+                  <h1>Billing & Payment Methods</h1>
+
+                  <!-- SAVED PAYMENT METHODS -->
+                  <section>
+                    <h2>Saved payment methods</h2>
+                    <% if (methods.length === 0) { %>
+                      <p>No saved cards yet.</p>
+                    <% } else { %>
+                      <ul>
+                        <% methods.forEach(m => { %>
+                          <li>
+                            <div>
+                              <strong><%= m.brand.toUpperCase() %></strong> ending in <%= m.last4 %><br>
+                              <small>Expires <%= m.exp_month %>/<%= m.exp_year %></small>
+                            </div>
+                          </li>
+                        <% }); %>
+                      </ul>
+                    <% } %>
+                  </section>
+
+                  <!-- ADD NEW CARD -->
+                  <section>
+                    <h2>Add a new card</h2>
+                    <form id="addCardForm">
+                      <label for="cardholder-name">Full name</label>
+                      <input id="cardholder-name" type="text" value="<%= user.email %>" required>
+
+                      <label for="card-element">Card details</label>
+                      <div id="card-element"></div>
+
+                      <button id="saveCardBtn" type="submit">Save card</button>
+                    </form>
+                    <div id="billing-message"></div>
+                  </section>
+                </main>
+
+                <%- include('partials/footer'); %>
+
+                <!-- STRIPE -->
+                <script src="https://js.stripe.com/v3/"></script>
+                <script>
+                  const stripe = Stripe("<%= stripe_pk %>");
+                  const elements = stripe.elements({
+                    appearance: {
+                      theme: 'flat',
+                      variables: {
+                        colorPrimary: '#2563eb',
+                        colorText: '#0f172a',
+                        borderRadius: '8px',
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                      }
+                    }
+                  });
+
+                  const cardElement = elements.create('card', {
+                    style: {
+                      base: {
+                        color: '#0f172a',
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                        fontSize: '16px',
+                        '::placeholder': { color: '#9ca3af' }
+                      },
+                      invalid: { color: '#ef4444' }
+                    }
+                  });
+                  cardElement.mount('#card-element');
+
+                  const form = document.getElementById('addCardForm');
+                  const messageEl = document.getElementById('billing-message');
+                  const saveBtn = document.getElementById('saveCardBtn');
+
+                  function showMessage(type, text) {
+                    messageEl.textContent = text;
+                    messageEl.className = type === 'error' ? 'error' : 'success';
+                    messageEl.style.display = 'block';
+                  }
+
+                  form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Saving...';
+
+                    try {
+                      // Step 1: Request SetupIntent from backend
+                      const res = await fetch('/api/create-setup-intent', { method: 'POST' });
+                      const data = await res.json();
+
+                      if (!data.clientSecret)
+                        throw new Error('No client secret received from server.');
+
+                      // Step 2: Confirm card setup
+                      const { setupIntent, error } = await stripe.confirmCardSetup(data.clientSecret, {
+                        payment_method: {
+                          card: cardElement,
+                          billing_details: { name: document.getElementById('cardholder-name').value }
+                        }
+                      });
+
+                      if (error) throw error;
+
+                      // Step 3: Save payment method in database
+                      const saveRes = await fetch('/api/save-payment-method', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ payment_method_id: setupIntent.payment_method })
+                      });
+
+                      const saveData = await saveRes.json();
+                      if (saveData.error) throw new Error(saveData.error);
+
+                      showMessage('success', '✅ Card added successfully!');
+                      setTimeout(() => location.reload(), 1500);
+                    } catch (err) {
+                      console.error(err);
+                      showMessage('error', `❌ ${err.message}`);
+                    } finally {
+                      saveBtn.disabled = false;
+                      saveBtn.textContent = 'Save card';
+                    }
+                  });
+                </script>
+              </body>
+              </html>

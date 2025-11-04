@@ -225,66 +225,53 @@ app.get('/stories', async (req, res) => {
 // BILLING PAGE
 // =======================
 app.get('/billing', requireAuth, async (req, res) => {
-  try {
-    const { data: methods, error } = await ylsooCore
-      .from('billing_methods')
-      .select('*')
-      .eq('user_id', req.session.user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    res.render('billing', {
-      user: req.session.user,
-      methods: methods || [],
-      stripe_pk: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_yourstripekey',
-    });
-  } catch (err) {
-    console.error('Billing load error:', err.message);
-    res.render('billing', {
-      user: req.session.user,
-      methods: [],
-      stripe_pk: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_yourstripekey',
-    });
-  }
+  const { data: methods } = await ylsooCore
+    .from('billing_methods')
+    .select('*')
+    .eq('user_id', req.session.user.id);
+  res.render('billing', {
+    user: req.session.user,
+    methods: methods || [],
+    stripe_pk: process.env.STRIPE_PUBLISHABLE_KEY,
+  });
 });
+
 
 // =======================
 // STRIPE CREATE SETUP INTENT
 // =======================
-app.post('/api/create-setup-intent', requireAuth, async (req, res) => {
+app.post("/api/create-setup-intent", requireAuth, async (req, res) => {
   try {
-    let customerId;
+    // Create or reuse Stripe customer
+    let customerId = req.session.user.stripe_customer_id;
 
-    const { data: existing } = await ylsooCore
-      .from('billing_methods')
-      .select('stripe_customer_id')
-      .eq('user_id', req.session.user.id)
-      .single();
-
-    if (existing && existing.stripe_customer_id) {
-      customerId = existing.stripe_customer_id;
-    } else {
+    if (!customerId) {
       const customer = await stripe.customers.create({
         email: req.session.user.email,
-        name: req.session.user.name,
+        name: req.session.user.name || "Ylsoo User",
       });
-      customerId = customer.id;
 
-      await ylsooCore.from('billing_methods').upsert({
-        user_id: req.session.user.id,
-        stripe_customer_id: customerId,
-      });
+      customerId = customer.id;
+      req.session.user.stripe_customer_id = customerId;
+
+      // Store in database for reuse (optional)
+      await ylsooCore
+        .from("users")
+        .update({ stripe_customer_id: customerId })
+        .eq("id", req.session.user.id);
     }
 
+    // Create a SetupIntent
     const setupIntent = await stripe.setupIntents.create({
       customer: customerId,
-      payment_method_types: ['card'],
+      payment_method_types: ["card"],
     });
 
+    // Return the client_secret to the browser
     res.json({ clientSecret: setupIntent.client_secret });
   } catch (err) {
-    console.error('Setup intent error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.error("Stripe SetupIntent error:", err.message);
+    res.status(500).json({ error: "Failed to create setup intent" });
   }
 });
 
