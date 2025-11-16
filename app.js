@@ -170,6 +170,7 @@ app.get('/privacy', (req, res) => res.render('privacy', { user: req.session.user
 app.get('/cookies', (req, res) => res.render('cookies', { user: req.session.user || null }));
 app.get('/about', (req, res) => res.render('about', { user: req.session.user || null }));
 app.get('/contact', (req, res) => res.render('contact', { user: req.session.user || null }));
+app.get('/no-hello', (req, res) => res.render('no-hello', { user: req.session.user || null }));
 
 // =======================
 // PARTNERS PAGE

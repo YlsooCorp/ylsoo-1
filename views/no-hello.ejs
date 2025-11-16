@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No Hello | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about">About</a>
+          <a href="/team">Team</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <% if (user) { %>
+          <a href="/dashboard" class="btn-text"><%= user.name %></a>
+          <form method="POST" action="/api/logout" style="display:inline;">
+            <button type="submit" class="btn-secondary">Log out</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn-text">Sign in</a>
+          <a href="/signup" class="btn-primary">Sign up</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <section class="legal-document">
+    <div class="legal-container">
+      <div class="legal-header">
+        <h1>No Random Hellos</h1>
+        <p class="legal-date">How to respect Ylsoo teammates' time and focus</p>
+      </div>
+
+      <div class="legal-content">
+        <div class="legal-section">
+          <h2>Why we discourage pop-in greetings</h2>
+          <p>We love friendly teammates, but focus time is precious. When someone receives a quick "hello" without any context, it interrupts their flow and forces them to guess what you might need. Multiply that across an entire team—and especially across leadership calendars—and those small interruptions add up.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>What to do instead</h2>
+          <ul>
+            <li><strong>Lead with context:</strong> Share your question or reason for reaching out right away so the person can respond efficiently.</li>
+            <li><strong>Use async channels:</strong> Threads and project docs help everyone keep a record without needing an immediate response.</li>
+            <li><strong>Be mindful of time zones:</strong> A well-structured message lets teammates reply when they’re online.</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>Protecting executive focus</h2>
+          <p>Our CEO’s calendar is packed with strategic decisions, partner conversations, and team support. A surprise hello with no follow-up can derail that focus for the day. If you need input from the CEO or other executives, share a detailed note through the proper channels—include background, desired outcomes, and relevant timelines.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>When a quick greeting <em>is</em> welcome</h2>
+          <p>We’re still humans! A warm greeting during scheduled meetings, team rituals, or social channels is always appreciated. Just pair it with purpose so we keep work flowing smoothly.</p>
+        </div>
+
+        <div class="legal-footer">
+          <p>Thanks for helping us protect deep work and considerate communication across Ylsoo.</p>
+          <div class="legal-links">
+            <a href="/">Back to Home</a>
+            <span>•</span>
+            <a href="/contact">Contact us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
