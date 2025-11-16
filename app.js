@@ -720,6 +720,34 @@ app.get('/account/security', requireAuth, async (req, res) => {
       .single();
     if (prefsError && prefsError.code !== 'PGRST116') throw prefsError;
 
+    if (ylsooCore.auth?.admin?.getUserById) {
+      const { data: adminUser, error: adminError } = await ylsooCore.auth.admin.getUserById(userId);
+      if (adminError) throw adminError;
+      const metadata = adminUser?.user?.user_metadata || {};
+      profile = {
+        full_name: metadata.name || metadata.full_name || req.session.user.name || '',
+        job_title: metadata.job_title || '',
+        timezone: metadata.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+        phone_number: metadata.phone_number || '',
+        recovery_email: metadata.recovery_email || ''
+      };
+    }
+
+    const { data: recentSessions, error: sessionsError } = await ylsooCore
+      .from('user_sessions')
+      .select('id, device_name, browser, os, ip_address, created_at, last_active, is_active')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (sessionsError && sessionsError.code !== 'PGRST116') throw sessionsError;
+
+    const { data: prefs, error: prefsError } = await ylsooCore
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (prefsError && prefsError.code !== 'PGRST116') throw prefsError;
+
     res.render('account-security', {
       user: req.session.user,
       profile,
@@ -898,6 +926,36 @@ app.post('/api/account/change-password', requireAuth, async (req, res) => {
     const { error: updateError } = await ylsooCore.auth.updateUser({ password: newPassword });
     if (updateError) throw updateError;
     res.redirect('/account/security?message=' + encodeURIComponent('Password changed successfully!'));
+  } catch (err) {
+    res.redirect('/account/security?error=' + encodeURIComponent(err.message));
+  }
+});
+
+app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
+  const enabled = req.body.enabled === true || req.body.enabled === 'true' || req.body.enabled === 'on';
+  try {
+    const { data: existing, error: fetchError } = await ylsooCore
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', req.session.user.id)
+      .single();
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+    const payload = {
+      user_id: req.session.user.id,
+      email_updates: existing?.email_updates ?? true,
+      marketing_emails: existing?.marketing_emails ?? false,
+      product_announcements: existing?.product_announcements ?? true,
+      security_alerts: enabled,
+    };
+
+    const { error } = await ylsooCore
+      .from('notification_preferences')
+      .upsert(payload, { onConflict: 'user_id' });
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
   } catch (err) {
     res.redirect('/account/security?error=' + encodeURIComponent(err.message));
   }
