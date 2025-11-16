@@ -24,6 +24,15 @@ let serverStart = Date.now();
 const ylsooCoreUrl = process.env.SUPABASE_URL || 'https://qjnwvmzrwxdtvapsuzgc.supabase.co';
 const ylsooCoreKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqbnd2bXpyd3hkdHZhcHN1emdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1Nzc1NDEsImV4cCI6MjA2NzE1MzU0MX0.GCwssdY5oogs6fdxs3q7WlBhbNKtYZN1iaVh1iUEBd8';
 const ylsooCore = createClient(ylsooCoreUrl, ylsooCoreKey);
+const ylsooServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
+const ylsooService = ylsooServiceKey
+  ? createClient(ylsooCoreUrl, ylsooServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null;
 
 // =======================
 // RESEND EMAIL SETUP
@@ -170,6 +179,7 @@ app.get('/privacy', (req, res) => res.render('privacy', { user: req.session.user
 app.get('/cookies', (req, res) => res.render('cookies', { user: req.session.user || null }));
 app.get('/about', (req, res) => res.render('about', { user: req.session.user || null }));
 app.get('/contact', (req, res) => res.render('contact', { user: req.session.user || null }));
+app.get('/no-hello', (req, res) => res.render('no-hello', { user: req.session.user || null }));
 
 // =======================
 // PARTNERS PAGE
@@ -660,30 +670,95 @@ app.get('/changes/:id', async (req, res) => {
 
 
 // =======================
-// CUSTOM ERROR HANDLING
-// =======================
-
-// 404 Page (Not Found)
-app.use((req, res) => {
-  res.status(404).render('404', { user: req.session.user || null });
-});
-
-// Generic Server Error
-app.use((err, req, res, next) => {
-  console.error('💥 Internal Server Error:', err.stack);
-  res.status(500).render('error', {
-    user: req.session.user || null,
-    message: 'Something went wrong on our side.',
-    error: err
-  });
-});
-
-
-// =======================
 // ACCOUNT SECURITY PAGE
 // =======================
-app.get('/account/security', requireAuth, (req, res) => {
-  res.render('account-security', { user: req.session.user, message: null, error: null });
+app.get('/account/security', requireAuth, async (req, res) => {
+  const userId = req.session.user.id;
+  const flashMessage = req.query.message || null;
+  const flashError = req.query.error || null;
+
+  try {
+    let profile = {
+      full_name: req.session.user.name || '',
+      job_title: '',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      phone_number: '',
+      recovery_email: ''
+    };
+
+    if (ylsooService?.auth?.admin?.getUserById) {
+      try {
+        const { data: adminUser, error: adminError } = await ylsooService.auth.admin.getUserById(userId);
+        if (adminError) throw adminError;
+        const metadata = adminUser?.user?.user_metadata || {};
+        profile = {
+          full_name: metadata.name || metadata.full_name || req.session.user.name || '',
+          job_title: metadata.job_title || '',
+          timezone: metadata.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          phone_number: metadata.phone_number || '',
+          recovery_email: metadata.recovery_email || ''
+        };
+      } catch (adminErr) {
+        console.warn('Profile metadata fallback used:', adminErr.message);
+      }
+    } else {
+      console.warn('SUPABASE_SERVICE_ROLE_KEY missing; using session profile defaults.');
+    }
+
+    let recentSessions = [];
+    const { data: sessionRows, error: sessionsError } = await ylsooCore
+      .from('user_sessions')
+      .select('id, device_name, browser, os, ip_address, created_at, last_active, is_active')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (sessionsError && sessionsError.code !== 'PGRST116') throw sessionsError;
+    if (sessionRows) {
+      recentSessions = sessionRows;
+    }
+
+    const { data: prefs, error: prefsError } = await ylsooCore
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (prefsError && prefsError.code !== 'PGRST116') throw prefsError;
+
+    res.render('account-security', {
+      user: req.session.user,
+      profile,
+      sessions: recentSessions,
+      preferences: prefs || {
+        email_updates: true,
+        marketing_emails: false,
+        security_alerts: true,
+        product_announcements: true
+      },
+      message: flashMessage,
+      error: flashError
+    });
+  } catch (err) {
+    console.error('Account security load error:', err.message);
+    res.render('account-security', {
+      user: req.session.user,
+      profile: {
+        full_name: req.session.user.name || '',
+        job_title: '',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        phone_number: '',
+        recovery_email: ''
+      },
+      sessions: [],
+      preferences: {
+        email_updates: true,
+        marketing_emails: false,
+        security_alerts: true,
+        product_announcements: true
+      },
+      message: flashMessage,
+      error: flashError || 'Unable to load account data right now.'
+    });
+  }
 });
 
 // Change Email
@@ -693,9 +768,39 @@ app.post('/api/account/change-email', requireAuth, async (req, res) => {
     const { error } = await ylsooCore.auth.updateUser({ email: newEmail });
     if (error) throw error;
     req.session.user.email = newEmail;
-    res.render('account-security', { user: req.session.user, message: 'Email updated successfully!', error: null });
+    res.redirect('/account/security?message=' + encodeURIComponent('Email updated successfully!'));
   } catch (err) {
-    res.render('account-security', { user: req.session.user, message: null, error: err.message });
+    res.redirect('/account/security?error=' + encodeURIComponent(err.message));
+  }
+});
+
+// Update profile metadata
+app.post('/api/account/profile', requireAuth, async (req, res) => {
+  const { full_name, job_title, timezone, phone_number, recovery_email } = req.body;
+  try {
+    const metadata = {
+      name: full_name || req.session.user.name,
+      job_title: job_title || '',
+      timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      phone_number: phone_number || '',
+      recovery_email: recovery_email || ''
+    };
+
+    if (ylsooCore.auth?.admin?.updateUserById) {
+      const { error } = await ylsooCore.auth.admin.updateUserById(req.session.user.id, {
+        user_metadata: metadata
+      });
+      if (error) throw error;
+    } else {
+      const { error } = await ylsooCore.auth.updateUser({ data: metadata });
+      if (error) throw error;
+    }
+
+    req.session.user.name = metadata.name;
+    res.redirect('/account/security?message=' + encodeURIComponent('Profile saved successfully.'));
+  } catch (err) {
+    console.error('Profile update error:', err.message);
+    res.redirect('/account/security?error=' + encodeURIComponent('Failed to update profile.'));
   }
 });
 
@@ -709,7 +814,12 @@ app.post('/api/account/request-password-code', requireAuth, async (req, res) => 
   const name = req.session.user.name || 'User';
 
   try {
-    await ylsooCore.from('password_reset_codes').insert([{ user_id: userId, code }]);
+    await ylsooCore.from('password_reset_codes').insert([{ 
+      user_id: userId,
+      code,
+      expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+      used: false
+    }]);
     await resend.emails.send({
       from: 'Ylsoo Security <noreply@accts.ylsoo.com>',
       to: email,
@@ -791,9 +901,39 @@ app.post('/api/account/change-password', requireAuth, async (req, res) => {
     await ylsooCore.from('password_reset_codes').update({ used: true }).eq('id', data.id);
     const { error: updateError } = await ylsooCore.auth.updateUser({ password: newPassword });
     if (updateError) throw updateError;
-    res.render('account-security', { user: req.session.user, message: 'Password changed successfully!', error: null });
+    res.redirect('/account/security?message=' + encodeURIComponent('Password changed successfully!'));
   } catch (err) {
-    res.render('account-security', { user: req.session.user, message: null, error: err.message });
+    res.redirect('/account/security?error=' + encodeURIComponent(err.message));
+  }
+});
+
+app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
+  const enabled = req.body.enabled === true || req.body.enabled === 'true' || req.body.enabled === 'on';
+  try {
+    const { data: existing, error: fetchError } = await ylsooCore
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', req.session.user.id)
+      .single();
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+    const payload = {
+      user_id: req.session.user.id,
+      email_updates: existing?.email_updates ?? true,
+      marketing_emails: existing?.marketing_emails ?? false,
+      product_announcements: existing?.product_announcements ?? true,
+      security_alerts: enabled,
+    };
+
+    const { error } = await ylsooCore
+      .from('notification_preferences')
+      .upsert(payload, { onConflict: 'user_id' });
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Security alerts toggle error:', err.message);
+    res.status(500).json({ success: false, error: 'Unable to update security alerts.' });
   }
 });
 
@@ -925,10 +1065,19 @@ app.get('/api/email/test', async (req, res) => {
 });
 
 // =======================
-// 404 FALLBACK
+// ERROR HANDLERS
 // =======================
 app.use((req, res) => {
   res.status(404).render('404', { user: req.session.user || null });
+});
+
+app.use((err, req, res, next) => {
+  console.error('💥 Internal Server Error:', err.stack);
+  res.status(500).render('error', {
+    user: req.session.user || null,
+    message: 'Something went wrong on our side.',
+    error: err,
+  });
 });
 
 // =======================

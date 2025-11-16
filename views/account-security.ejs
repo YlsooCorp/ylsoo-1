@@ -6,131 +6,228 @@
   <title>Account Security - Ylsoo</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    .security-container {
-      max-width: 700px;
-      margin: 3rem auto;
-      background: #fff;
-      padding: 2rem 3rem;
-      border-radius: 16px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.05);
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.7rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-
-    button {
-      background: #0078D4;
-      border: none;
-      color: white;
-      padding: 0.7rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    button:hover {
-      background: #005ea6;
-    }
-
-    .divider {
-      margin: 2rem 0;
-      border-top: 1px solid #eee;
-    }
-
-    .message {
-      background: #e0f7e9;
-      color: #047857;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .error {
-      background: #fde8e8;
-      color: #b91c1c;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
+    body { background: #f4f7fb; }
+    .security-wrapper { max-width: 1100px; margin: 0 auto; padding: 60px 20px 120px; }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 34px; margin-bottom: 8px; }
+    .page-header p { color: #6b7280; margin: 0; }
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 999px; font-size: 13px; }
+    .flash { padding: 14px 18px; border-radius: 10px; margin-bottom: 18px; font-weight: 500; }
+    .flash.success { background: #ecfdf3; color: #166534; border: 1px solid #a7f3d0; }
+    .flash.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .security-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .card { background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 10px 35px rgba(15,23,42,0.08); border: 1px solid #e4e7ec; }
+    .card h2 { margin-top: 0; font-size: 20px; }
+    .card p.helper { color: #6b7280; font-size: 14px; margin-top: 4px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 20px; }
+    label { font-weight: 600; font-size: 14px; color: #0f172a; display: block; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #d0d5dd; font-size: 14px; }
+    .btn-primary { background: #2563eb; color: #fff; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 600; cursor: pointer; }
+    .btn-ghost { background: transparent; border: 1px solid #2563eb; color: #2563eb; border-radius: 10px; padding: 10px 16px; font-weight: 600; cursor: pointer; }
+    .split { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; }
+    .toggle-row strong { display: block; }
+    .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; transition: 0.3s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+    input:checked + .slider { background-color: #2563eb; }
+    input:checked + .slider:before { transform: translateX(22px); }
+    .session-list { list-style: none; padding: 0; margin: 0; }
+    .session { border-bottom: 1px solid #e5e7eb; padding: 16px 0; display: flex; justify-content: space-between; gap: 16px; }
+    .session:last-child { border-bottom: none; }
+    .session small { color: #6b7280; }
+    .session-status { font-weight: 600; color: #16a34a; }
+    .session-status.inactive { color: #6b7280; }
+    .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .note { font-size: 13px; color: #6b7280; margin-top: 6px; }
+    .password-forms { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+    .password-forms form { border: 1px solid #e5e7eb; padding: 16px; border-radius: 12px; }
+    @media (max-width: 640px) {
+      .security-wrapper { padding-top: 32px; }
+      .card { padding: 20px; }
     }
   </style>
 </head>
 <body>
   <%- include('partials/navbar', { user }); %>
 
-  <div class="security-container">
-    <h1>Security Settings</h1>
-    <% if (message) { %><div class="message"><%= message %></div><% } %>
-    <% if (error) { %><div class="error"><%= error %></div><% } %>
+  <section class="security-wrapper">
+    <div class="page-header">
+      <span class="status-pill">
+        <span style="width:8px;height:8px;border-radius:999px;background:#10b981;display:inline-block;"></span>
+        Signed in as <strong><%= user.email %></strong>
+      </span>
+      <h1>Profile & Security</h1>
+      <p>Keep your personal info up to date and lock down how your Ylsoo account can be accessed.</p>
+    </div>
 
-    <!-- Change Email -->
-    <form action="/api/account/change-email" method="POST">
-      <div class="form-group">
-        <label>New Email</label>
-        <input type="email" name="newEmail" required placeholder="Enter new email">
+    <% if (message) { %>
+      <div class="flash success"><%= message %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="flash error"><%= error %></div>
+    <% } %>
+
+    <div class="security-grid">
+      <div class="card" style="grid-column: span 2;">
+        <h2>Profile Details</h2>
+        <p class="helper">This information appears across dashboards, receipts, and audit logs.</p>
+        <form action="/api/account/profile" method="POST">
+          <div class="form-grid">
+            <div>
+              <label>Full Name</label>
+              <input type="text" name="full_name" value="<%= profile.full_name %>" placeholder="e.g. Jordan Patel" required>
+            </div>
+            <div>
+              <label>Role / Title</label>
+              <input type="text" name="job_title" value="<%= profile.job_title %>" placeholder="e.g. Security Lead">
+            </div>
+            <div>
+              <label>Timezone</label>
+              <input type="text" name="timezone" value="<%= profile.timezone %>" placeholder="America/New_York">
+            </div>
+            <div>
+              <label>Phone Number</label>
+              <input type="tel" name="phone_number" value="<%= profile.phone_number %>" placeholder="+1 555 123 4567">
+            </div>
+            <div>
+              <label>Recovery Email</label>
+              <input type="email" name="recovery_email" value="<%= profile.recovery_email %>" placeholder="security@company.com">
+            </div>
+          </div>
+          <div class="actions" style="margin-top:18px;">
+            <button type="submit" class="btn-primary">Save profile</button>
+            <a class="btn-ghost" href="/devices">Manage devices</a>
+          </div>
+        </form>
       </div>
-      <button type="submit">Update Email</button>
-    </form>
 
-    <div class="divider"></div>
-
-    <!-- Change Password -->
-    <form id="request-code-form" onsubmit="requestCode(event)">
-      <h3>Change Password</h3>
-      <p>First, request a verification code.</p>
-      <button type="submit">Send Verification Code</button>
-    </form>
-
-    <form id="change-password-form" action="/api/account/change-password" method="POST" style="display:none;">
-      <div class="form-group">
-        <label>Verification Code</label>
-        <input type="text" name="code" maxlength="6" required placeholder="Enter 6-digit code">
+      <div class="card">
+        <h2>Primary Email</h2>
+        <p class="helper">This address is used for login and invoices.</p>
+        <p><strong><%= user.email %></strong></p>
+        <form action="/api/account/change-email" method="POST" class="split">
+          <div>
+            <label>Update Email</label>
+            <input type="email" name="newEmail" placeholder="name@company.com" required>
+          </div>
+          <button type="submit" class="btn-primary">Change email</button>
+        </form>
       </div>
-      <div class="form-group">
-        <label>New Password</label>
-        <input type="password" name="newPassword" required placeholder="Enter new password">
+
+      <div class="card">
+        <h2>Security Alerts</h2>
+        <p class="helper">We’ll notify you when a new device signs in or a password reset is requested.</p>
+        <div class="toggle-row">
+          <div>
+            <strong>Login alerts</strong>
+            <span class="note"><%= preferences.security_alerts ? 'Enabled' : 'Disabled' %></span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="alerts-toggle" <%= preferences.security_alerts ? 'checked' : '' %>>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <small class="note">Alerts are delivered to <%= user.email %>.</small>
       </div>
-      <button type="submit">Change Password</button>
-    </form>
-  </div>
+
+      <div class="card" style="grid-column: span 2;">
+        <h2>Password Controls</h2>
+        <p class="helper">Rotate your password after requesting a verification code. Codes expire in 10 minutes.</p>
+        <div class="password-forms">
+          <form id="request-code-form" onsubmit="requestCode(event)">
+            <strong>1. Request a verification code</strong>
+            <p class="note">We’ll email the code to <%= user.email %>.</p>
+            <button type="submit" class="btn-primary">Send verification code</button>
+          </form>
+          <form id="change-password-form" action="/api/account/change-password" method="POST">
+            <strong>2. Update password</strong>
+            <div class="form-grid">
+              <div>
+                <label>Verification Code</label>
+                <input type="text" name="code" maxlength="6" placeholder="6-digit code" required>
+              </div>
+              <div>
+                <label>New Password</label>
+                <input type="password" name="newPassword" placeholder="Create a strong password" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top:16px;">Change password</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column: span 2;">
+        <h2>Recent Sign-ins</h2>
+        <p class="helper">Newest logins show first. Sign out suspicious sessions from the devices page.</p>
+        <% if (sessions.length === 0) { %>
+          <p class="note">No sessions recorded yet.</p>
+        <% } else { %>
+          <ul class="session-list">
+            <% sessions.forEach(function(session) { %>
+              <li class="session">
+                <div>
+                  <strong><%= session.device_name || 'Unknown device' %></strong>
+                  <div class="note">
+                    <%= session.browser || 'Browser unknown' %> • <%= session.os || 'OS unknown' %><br>
+                    IP <%= session.ip_address || 'n/a' %>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <small><%= new Date(session.created_at).toLocaleString() %></small><br>
+                  <span class="session-status <%= session.is_active ? '' : 'inactive' %>">
+                    <%= session.is_active ? 'Active' : 'Signed out' %>
+                  </span>
+                </div>
+              </li>
+            <% }); %>
+          </ul>
+          <a href="/devices" class="btn-ghost" style="margin-top:18px;">Review all devices</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
 
   <script>
     async function requestCode(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button');
       btn.disabled = true;
-      btn.textContent = 'Sending...';
-
-      const res = await fetch('/api/account/request-password-code', { method: 'POST' });
-      const data = await res.json();
-
-      if (data.success) {
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/account/request-password-code', { method: 'POST' });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to send verification code.');
         alert('Verification code sent to your email.');
-        document.getElementById('change-password-form').style.display = 'block';
-      } else {
-        alert('Failed to send code. Try again later.');
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send verification code';
       }
+    }
 
-      btn.disabled = false;
-      btn.textContent = 'Send Verification Code';
+    const alertsToggle = document.getElementById('alerts-toggle');
+    if (alertsToggle) {
+      alertsToggle.addEventListener('change', async (event) => {
+        const checked = event.target.checked;
+        event.target.disabled = true;
+        try {
+          const res = await fetch('/api/account/security-alerts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: checked })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || 'Unable to update alerts.');
+        } catch (err) {
+          alert(err.message);
+          event.target.checked = !checked;
+        } finally {
+          event.target.disabled = false;
+        }
+      });
     }
   </script>
 
