@@ -661,26 +661,6 @@ app.get('/changes/:id', async (req, res) => {
 
 
 // =======================
-// CUSTOM ERROR HANDLING
-// =======================
-
-// 404 Page (Not Found)
-app.use((req, res) => {
-  res.status(404).render('404', { user: req.session.user || null });
-});
-
-// Generic Server Error
-app.use((err, req, res, next) => {
-  console.error('💥 Internal Server Error:', err.stack);
-  res.status(500).render('error', {
-    user: req.session.user || null,
-    message: 'Something went wrong on our side.',
-    error: err
-  });
-});
-
-
-// =======================
 // ACCOUNT SECURITY PAGE
 // =======================
 app.get('/account/security', requireAuth, async (req, res) => {
@@ -1066,10 +1046,19 @@ app.get('/api/email/test', async (req, res) => {
 });
 
 // =======================
-// 404 FALLBACK
+// ERROR HANDLERS
 // =======================
 app.use((req, res) => {
   res.status(404).render('404', { user: req.session.user || null });
+});
+
+app.use((err, req, res, next) => {
+  console.error('💥 Internal Server Error:', err.stack);
+  res.status(500).render('error', {
+    user: req.session.user || null,
+    message: 'Something went wrong on our side.',
+    error: err,
+  });
 });
 
 // =======================
