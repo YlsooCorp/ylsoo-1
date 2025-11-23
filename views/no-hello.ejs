@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No Hello | Ylsoo</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="nav-left">
+        <a href="/" class="logo">Ylsoo</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about">About</a>
+          <a href="/team">Team</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <% if (user) { %>
+          <a href="/dashboard" class="btn-text"><%= user.name %></a>
+          <form method="POST" action="/api/logout" style="display:inline;">
+            <button type="submit" class="btn-secondary">Log out</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn-text">Sign in</a>
+          <a href="/signup" class="btn-primary">Sign up</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <section class="legal-document">
+    <div class="legal-container">
+      <div class="legal-header">
+        <h1>No Hello</h1>
+        <p class="legal-date">Please share your question right away instead of opening with a lonely greeting.</p>
+      </div>
+
+      <div class="legal-content">
+        <div class="legal-section">
+          <h2>The pattern we try to avoid</h2>
+          <div class="quote-block">
+            <p><strong>You:</strong> Hello?</p>
+            <p><strong>Teammate:</strong> <em>(now waiting, guessing what you might need)</em></p>
+            <p><strong>You:</strong> Are you free? Can you jump on a call?</p>
+            <p><strong>Teammate:</strong> I was focused on a deploy and had to stop to see if this was urgent.</p>
+          </div>
+          <p>That tiny pause between “hello” and the actual question is a productivity sink. Everyone—including the CEO—has to alt-tab away from deep work to check if they’re missing something important. Multiply that by dozens of chats a day and an entire team loses hours.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>Why it hurts more than it seems</h2>
+          <ul>
+            <li><strong>Context switching costs time:</strong> Pulling someone out of flow for a context-free ping can take 20–30 minutes of recovery.</li>
+            <li><strong>It creates social pressure:</strong> The recipient feels rude if they don’t reply immediately—even though there isn’t a question yet.</li>
+            <li><strong>Leaders aren’t immune:</strong> Our CEO’s calendar is stacked. A vague greeting can derail the entire day while they wait for clarification.</li>
+            <li><strong>Written records matter:</strong> Threads become impossible to search when they start with filler like “hi” or “quick question.”</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>Do this instead</h2>
+          <ol>
+            <li><strong>Lead with the ask.</strong> “Hey Mia — the billing job failed on shard 03. Can you restart it?”</li>
+            <li><strong>Add relevant context.</strong> Include logs, screenshots, links, and deadlines so the reader can help asynchronously.</li>
+            <li><strong>Mention urgency honestly.</strong> “Blocking launch” is clearer than “ASAP!!!” and lets people prioritize.</li>
+            <li><strong>Respect availability.</strong> If you truly need a live conversation, propose times instead of demanding immediate attention.</li>
+          </ol>
+          <p>Sending the full message upfront is considerate and lets the other person reply when they can, without a round of “hello” / “are you there?” limbo.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>When a greeting is totally fine</h2>
+          <p>We’re not banning friendliness. A warm hello is perfect when it comes paired with substance, or when you’re already in a meeting, stand-up, social channel, or hallway chat. Just remember that in work chat, <strong>hello + question</strong> beats <strong>hello … (wait)</strong> every time.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>FAQ</h2>
+          <h3>But what if I’m not sure the person is around?</h3>
+          <p>Leave the message anyway. Most tools show presence indicators. The other person will see it when they return and answer with full context.</p>
+          <h3>What if the CEO likes quick pings?</h3>
+          <p>They still need the details. If it’s urgent, tag them with a short summary and what decision you need. If it’s not urgent, email or drop the notes in the appropriate channel.</p>
+          <h3>Isn’t it rude to skip a greeting?</h3>
+          <p>You can say “Hi!”—just follow it immediately with your request. Consider it the digital equivalent of “Hi, can I borrow you for 2 minutes about the SOC report?”</p>
+        </div>
+
+        <div class="legal-footer">
+          <p>Thanks for helping us keep Ylsoo courteous <em>and</em> efficient. Send context, save time, ship faster.</p>
+          <div class="legal-links">
+            <a href="/">Back to Home</a>
+            <span>•</span>
+            <a href="/contact">Contact us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© <%= new Date().getFullYear() %> Ylsoo. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
