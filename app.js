@@ -22,7 +22,7 @@ let serverStart = Date.now();
 // YLSOO CORE CONNECTION
 // =======================
 const ylsooCoreUrl = process.env.SUPABASE_URL || 'https://qjnwvmzrwxdtvapsuzgc.supabase.co';
-const ylsooCoreKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqbnd2bXpyd3hkdHZhcHN1emdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1Nzc1NDEsImV4cCI6MjA2NzE1MzU0MX0.GCwssdY5oogs6fdxs3q7WlBhbNKtYZN1iaVh1iUEBd8';
+const ylsooCoreKey = process.env.SUPABASE_ANON_KEY || 'YOUR_PUBLIC_KEY_HERE';
 const ylsooCore = createClient(ylsooCoreUrl, ylsooCoreKey);
 const ylsooServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
 const ylsooService = ylsooServiceKey
@@ -34,15 +34,22 @@ const ylsooService = ylsooServiceKey
     })
   : null;
 
+const ylsooServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
+const ylsooService = ylsooServiceKey
+  ? createClient(ylsooCoreUrl, ylsooServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+  : null;
+
 // =======================
 // RESEND EMAIL SETUP
 // =======================
-const resend = new Resend(process.env.RESEND_API_KEY || 're_WcsD7pZb_KnF9pLteArDaj2Q1gfKDebw3');
+const resend = new Resend(process.env.RESEND_API_KEY || 'YOUR_RESEND_KEY');
 
 // =======================
 // STRIPE SETUP
 // =======================
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_yourstripekey');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy');
 
 
 // =======================
@@ -90,21 +97,19 @@ app.get('/signup', (req, res) => {
 app.get('/dashboard', requireAuth, (req, res) => {
   res.render('dashboard', { user: req.session.user });
 });
+
 // =======================
-// CAREERS PAGE
+// CAREERS
 // =======================
 app.get('/careers', async (req, res) => {
   try {
     const { data: jobs, error } = await ylsooCore
-      .from('careers')
-      .select('*')
+      .from('careers').select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-
     res.render('careers', { user: req.session.user || null, jobs });
   } catch (err) {
-    console.error('Error loading careers:', err.message);
     res.render('careers', { user: req.session.user || null, jobs: [] });
   }
 });
@@ -149,33 +154,31 @@ app.get('/teams', async (req, res) => {
 });
 
 // Single Job Page
+// Single job
 app.get('/careers/:id', async (req, res) => {
   try {
     const { id } = req.params;
+
     const { data: job, error } = await ylsooCore
-      .from('careers')
-      .select('*')
-      .eq('id', id)
-      .single();
+      .from('careers').select('*').eq('id', id).single();
 
-    if (error) throw error;
+    if (error || !job) throw error;
 
-    // Dynamic requirement message based on location
     let requirementNote = 'General qualifications apply.';
-    const loc = job.location?.toLowerCase() || '';
+    const loc = (job.location || '').toLowerCase();
 
     if (loc.includes('germany') || loc.includes('berlin')) {
       requirementNote = 'A university degree or equivalent professional experience is required in Germany.';
-    } else if (loc.includes('united states') || loc.includes('usa') || loc.includes('america')) {
-      requirementNote = 'Bachelor’s degree preferred; relevant professional experience accepted.';
-    } else if (loc.includes('united kingdom') || loc.includes('london') || loc.includes('uk')) {
-      requirementNote = 'Applicants must have the legal right to work in the UK.';
-    } else if (loc.includes('remote')) {
-      requirementNote = 'Requirements may vary by region — flexibility based on experience.';
+    } else if (loc.includes('usa') || loc.includes('america')) {
+      requirementNote = 'Bachelor’s degree preferred; relevant experience accepted.';
+    } else if (loc.includes('uk') || loc.includes('london')) {
+      requirementNote = 'Applicants must have the right to work in the UK.';
     } else if (loc.includes('canada')) {
-      requirementNote = 'Bachelor’s degree or equivalent experience preferred; bilingual English/French a plus.';
+      requirementNote = 'Bachelor’s degree or experience preferred; bilingual a plus.';
     } else if (loc.includes('france') || loc.includes('paris')) {
-      requirementNote = 'Fluency in English and French and a related degree are typically required.';
+      requirementNote = 'English + French fluency typically required.';
+    } else if (loc.includes('remote')) {
+      requirementNote = 'Requirements may vary depending on region.';
     }
 
     res.render('career-entry', {
@@ -183,16 +186,31 @@ app.get('/careers/:id', async (req, res) => {
       job,
       requirementNote
     });
+
   } catch (err) {
-    console.error('Error loading job:', err.message);
     res.status(404).render('404', { user: req.session.user || null });
   }
 });
 
+// =======================
+// TEAM PAGE
+// =======================
+app.get('/team', async (req, res) => {
+  try {
+    const { data: team, error } = await ylsooCore
+      .from('team').select('*')
+      .order('joined_year', { ascending: false });
 
+    if (error) throw error;
+
+    res.render('team', { user: req.session.user || null, team });
+  } catch {
+    res.render('team', { user: req.session.user || null, team: [] });
+  }
+});
 
 // =======================
-// STATIC PAGES (LEGAL, ABOUT, CONTACT)
+// STATIC PAGES
 // =======================
 app.get('/terms', (req, res) => res.render('terms', { user: req.session.user || null }));
 app.get('/privacy', (req, res) => res.render('privacy', { user: req.session.user || null }));
@@ -202,52 +220,62 @@ app.get('/contact', (req, res) => res.render('contact', { user: req.session.user
 app.get('/no-hello', (req, res) => res.render('no-hello', { user: req.session.user || null }));
 
 // =======================
-// PARTNERS PAGE
+// PARTNERS
 // =======================
 app.get('/partners', async (req, res) => {
   try {
-    const { data: partners, error } = await ylsooCore.from('partners').select('*').order('id');
+    const { data: partners, error } = await ylsooCore
+      .from('partners').select('*').order('id');
+
     if (error) throw error;
+
     res.render('partners', { user: req.session.user || null, partners });
-  } catch (err) {
-    console.error('Partners error:', err);
+  } catch {
     res.render('partners', { user: req.session.user || null, partners: [] });
   }
 });
 
 // =======================
-// JOURNEY PAGE
+// JOURNEY
 // =======================
 app.get('/journey', async (req, res) => {
   try {
     const { data: milestones, error } = await ylsooCore
-      .from('journey')
-      .select('*')
+      .from('journey').select('*')
       .order('year', { ascending: true });
+
     if (error) throw error;
+
     res.render('journey', { user: req.session.user || null, milestones });
-  } catch (err) {
-    console.error('Journey error:', err);
+  } catch {
     res.render('journey', { user: req.session.user || null, milestones: [] });
   }
 });
-
-// =======================
-// TRUST CENTER
-// =======================
-app.get('/trust', (req, res) => res.render('trust', { user: req.session.user || null }));
 
 // =======================
 // STORIES SYSTEM
 // =======================
 app.get('/stories', async (req, res) => {
   try {
-    const { data: stories, error } = await ylsooCore.from('stories').select('*').order('id');
+    const { data: stories, error } = await ylsooCore
+      .from('stories').select('*').order('id');
+
     if (error) throw error;
+
     res.render('stories', { user: req.session.user || null, stories });
-  } catch (err) {
-    console.error('Stories error:', err);
+  } catch {
     res.render('stories', { user: req.session.user || null, stories: [] });
+  }
+});
+
+app.get('/story/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data: story, error } = await ylsooCore.from('stories').select('*').eq('id', id).single();
+    if (error || !story) throw error;
+    res.render('story', { user: req.session.user || null, story });
+  } catch {
+    res.status(404).render('404', { user: req.session.user || null });
   }
 });
 
@@ -256,9 +284,9 @@ app.get('/stories', async (req, res) => {
 // =======================
 app.get('/billing', requireAuth, async (req, res) => {
   const { data: methods } = await ylsooCore
-    .from('billing_methods')
-    .select('*')
+    .from('billing_methods').select('*')
     .eq('user_id', req.session.user.id);
+
   res.render('billing', {
     user: req.session.user,
     methods: methods || [],
@@ -266,13 +294,11 @@ app.get('/billing', requireAuth, async (req, res) => {
   });
 });
 
-
 // =======================
-// STRIPE CREATE SETUP INTENT
+// STRIPE SETUP INTENT
 // =======================
 app.post("/api/create-setup-intent", requireAuth, async (req, res) => {
   try {
-    // Create or reuse Stripe customer
     let customerId = req.session.user.stripe_customer_id;
 
     if (!customerId) {
@@ -284,29 +310,25 @@ app.post("/api/create-setup-intent", requireAuth, async (req, res) => {
       customerId = customer.id;
       req.session.user.stripe_customer_id = customerId;
 
-      // Store in database for reuse (optional)
       await ylsooCore
         .from("users")
         .update({ stripe_customer_id: customerId })
         .eq("id", req.session.user.id);
     }
 
-    // Create a SetupIntent
     const setupIntent = await stripe.setupIntents.create({
       customer: customerId,
       payment_method_types: ["card"],
     });
 
-    // Return the client_secret to the browser
     res.json({ clientSecret: setupIntent.client_secret });
   } catch (err) {
-    console.error("Stripe SetupIntent error:", err.message);
     res.status(500).json({ error: "Failed to create setup intent" });
   }
 });
 
 // =======================
-// STRIPE SAVE PAYMENT METHOD
+// SAVE PAYMENT METHOD
 // =======================
 app.post('/api/save-payment-method', requireAuth, async (req, res) => {
   const { payment_method_id } = req.body;
@@ -341,13 +363,12 @@ app.post('/api/save-payment-method', requireAuth, async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.error('Save payment error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
 // =======================
-// OPTIONAL 1¢ AUTH + REFUND
+// OPTIONAL 1¢ VERIFY CHARGE
 // =======================
 app.post('/api/verify-charge', requireAuth, async (req, res) => {
   const { payment_method_id } = req.body;
@@ -363,7 +384,7 @@ app.post('/api/verify-charge', requireAuth, async (req, res) => {
     if (!customerId) throw new Error('Customer not found');
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1, // 1 cent
+      amount: 1,
       currency: 'usd',
       customer: customerId,
       payment_method: payment_method_id,
@@ -377,25 +398,12 @@ app.post('/api/verify-charge', requireAuth, async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.error('Verify charge error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-
-app.get('/story/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { data: story, error } = await ylsooCore.from('stories').select('*').eq('id', id).single();
-    if (error) throw error;
-    res.render('story', { user: req.session.user || null, story });
-  } catch {
-    res.status(404).render('404', { user: req.session.user || null });
-  }
-});
-
 // =======================
-// SIGNUP & LOGIN
+// SIGNUP / LOGIN / LOGOUT
 // =======================
 app.post('/api/signup', async (req, res) => {
   const { email, password, name } = req.body;
@@ -405,9 +413,12 @@ app.post('/api/signup', async (req, res) => {
       password,
       options: { data: { name } }
     });
+
     if (error) throw error;
+
     req.session.user = { id: data.user.id, email: data.user.email, name };
     res.json({ success: true, redirect: '/dashboard' });
+
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -415,9 +426,11 @@ app.post('/api/signup', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const { data, error } = await ylsooCore.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
     const user = {
       id: data.user.id,
       email: data.user.email,
@@ -425,18 +438,21 @@ app.post('/api/login', async (req, res) => {
     };
     req.session.user = user;
 
-    // Track device/session
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+
     await ylsooCore.from('user_sessions').insert({
       user_id: user.id,
       device_name: userAgent.substring(0, 80),
       browser: userAgent,
-      os: userAgent.includes('Mac') ? 'macOS' : userAgent.includes('Win') ? 'Windows' : 'Unknown',
+      os: userAgent.includes('Mac') ? 'macOS'
+        : userAgent.includes('Win') ? 'Windows'
+        : 'Unknown',
       ip_address: ip
     });
 
     res.json({ success: true, redirect: '/dashboard' });
+
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -446,36 +462,37 @@ app.post('/api/logout', (req, res) => {
   req.session.destroy();
   res.json({ success: true, redirect: '/' });
 });
+
 // =======================
 // LABS PROJECTS
 // =======================
 app.get('/labs', async (req, res) => {
   try {
     const { data: labs, error } = await ylsooCore
-      .from('labs_projects')
-      .select('*')
+      .from('labs_projects').select('*')
       .order('created_at', { ascending: false });
+
     if (error) throw error;
+
     res.render('labs', { user: req.session.user || null, labs });
-  } catch (err) {
-    console.error('Labs error:', err.message);
+  } catch {
     res.render('labs', { user: req.session.user || null, labs: [] });
   }
 });
 
 // =======================
-// BLOG SYSTEM
+// BLOG
 // =======================
 app.get('/blog', async (req, res) => {
   try {
     const { data: posts, error } = await ylsooCore
-      .from('blog_posts')
-      .select('*')
+      .from('blog_posts').select('*')
       .order('created_at', { ascending: false });
+
     if (error) throw error;
+
     res.render('blog', { user: req.session.user || null, posts });
-  } catch (err) {
-    console.error('Blog load error:', err.message);
+  } catch {
     res.render('blog', { user: req.session.user || null, posts: [] });
   }
 });
@@ -484,33 +501,33 @@ app.get('/blog/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
     const { data: post, error } = await ylsooCore
-      .from('blog_posts')
-      .select('*')
+      .from('blog_posts').select('*')
       .eq('slug', slug)
       .single();
-    if (error || !post) throw error || new Error('Not found');
+
+    if (error || !post) throw error;
+
     res.render('blog-post', { user: req.session.user || null, post });
-  } catch (err) {
-    console.error('Blog single error:', err.message);
+  } catch {
     res.status(404).render('404', { user: req.session.user || null });
   }
 });
 
 // =======================
-// ETHICAL AI PAGE
+// ETHICAL AI
 // =======================
 app.get('/ethical-ai', async (req, res) => {
   try {
     const { data: pillars, error: pillarsError } = await ylsooCore
-      .from('ethical_pillars')
-      .select('*')
-      .order('order_index', { ascending: true });
+      .from('ethical_pillars').select('*')
+      .order('order_index');
+
     if (pillarsError) throw pillarsError;
 
     const { data: principles, error: principlesError } = await ylsooCore
-      .from('ethical_principles')
-      .select('*')
-      .order('order_index', { ascending: true });
+      .from('ethical_principles').select('*')
+      .order('order_index');
+
     if (principlesError) throw principlesError;
 
     res.render('ethical-ai', {
@@ -518,8 +535,8 @@ app.get('/ethical-ai', async (req, res) => {
       pillars,
       principles
     });
+
   } catch (err) {
-    console.error('Ethical AI error:', err.message);
     res.render('ethical-ai', {
       user: req.session.user || null,
       pillars: [],
@@ -534,14 +551,14 @@ app.get('/ethical-ai', async (req, res) => {
 app.get('/devices', requireAuth, async (req, res) => {
   try {
     const { data: sessions, error } = await ylsooCore
-      .from('user_sessions')
-      .select('*')
+      .from('user_sessions').select('*')
       .eq('user_id', req.session.user.id)
       .order('last_active', { ascending: false });
+
     if (error) throw error;
+
     res.render('devices', { user: req.session.user, sessions });
-  } catch (err) {
-    console.error('Devices error:', err.message);
+  } catch {
     res.render('devices', { user: req.session.user, sessions: [] });
   }
 });
@@ -554,24 +571,28 @@ app.post('/api/logout-session', requireAuth, async (req, res) => {
       .update({ is_active: false })
       .eq('id', session_id)
       .eq('user_id', req.session.user.id);
+
     if (error) throw error;
+
     res.json({ success: true });
+
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
   }
 });
 
 // =======================
-// ACCOUNT NOTIFICATIONS
+// ACCOUNT NOTIFICATIONS PAGE
 // =======================
 app.get('/account/notifications', requireAuth, async (req, res) => {
   try {
     const { data: preferences, error } = await ylsooCore
-      .from('notification_preferences')
-      .select('*')
+      .from('notification_preferences').select('*')
       .eq('user_id', req.session.user.id)
       .single();
+
     if (error && error.code !== 'PGRST116') throw error;
+
     res.render('account-notifications', {
       user: req.session.user,
       preferences: preferences || {
@@ -581,8 +602,8 @@ app.get('/account/notifications', requireAuth, async (req, res) => {
         product_announcements: true,
       }
     });
-  } catch (err) {
-    console.error('Notification prefs error:', err.message);
+
+  } catch {
     res.render('account-notifications', {
       user: req.session.user,
       preferences: {
@@ -597,6 +618,7 @@ app.get('/account/notifications', requireAuth, async (req, res) => {
 
 app.post('/api/account/notifications', requireAuth, async (req, res) => {
   const { email_updates, marketing_emails, security_alerts, product_announcements } = req.body;
+
   try {
     const { error } = await ylsooCore
       .from('notification_preferences')
@@ -605,92 +627,89 @@ app.post('/api/account/notifications', requireAuth, async (req, res) => {
         email_updates: email_updates === 'on',
         marketing_emails: marketing_emails === 'on',
         security_alerts: security_alerts === 'on',
-        product_announcements: product_announcements === 'on',
+        product_announcements: product_announcements === 'on'
       });
+
     if (error) throw error;
+
     res.redirect('/account/notifications');
   } catch (err) {
-    console.error('Notification prefs save error:', err.message);
     res.status(500).send('Error saving preferences');
   }
 });
 
 // =======================
-// NOTIFICATIONS PAGE
+// NOTIFICATIONS
 // =======================
 app.get('/notifications', requireAuth, async (req, res) => {
   try {
     const { data: notifications, error } = await ylsooCore
-      .from('notifications')
-      .select('*')
+      .from('notifications').select('*')
       .eq('user_id', req.session.user.id)
       .order('created_at', { ascending: false });
+
     if (error) throw error;
+
     res.render('notifications', { user: req.session.user, notifications });
-  } catch (err) {
-    console.error('Notifications load error:', err.message);
+  } catch {
     res.render('notifications', { user: req.session.user, notifications: [] });
   }
 });
 
 app.post('/api/notifications/read', requireAuth, async (req, res) => {
   const { id } = req.body;
+
   try {
     const { error } = await ylsooCore
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', id)
-      .eq('user_id', req.session.user.id);
+      .from('notifications').update({ is_read: true })
+      .eq('id', id).eq('user_id', req.session.user.id);
+
     if (error) throw error;
+
     res.json({ success: true });
+
   } catch (err) {
-    console.error('Mark read error:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // =======================
-// CHANGELOG PAGE
+// CHANGELOG
 // =======================
-
-// List all changelog entries
 app.get('/changelog', async (req, res) => {
   try {
     const { data: changelogs, error } = await ylsooCore
-      .from('changelog_entries')
-      .select('*')
+      .from('changelog_entries').select('*')
       .order('release_date', { ascending: false });
 
     if (error) throw error;
+
     res.render('changelog', { user: req.session.user || null, changelogs });
-  } catch (err) {
-    console.error('Error loading changelog:', err.message);
+  } catch {
     res.render('changelog', { user: req.session.user || null, changelogs: [] });
   }
 });
 
-// Single changelog entry
 app.get('/changes/:id', async (req, res) => {
-  const { id } = req.params;
   try {
-    const { data: entry, error } = await ylsooCore
-      .from('changelog_entries')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { id } = req.params;
 
-    if (error) throw error;
+    const { data: entry, error } = await ylsooCore
+      .from('changelog_entries').select('*')
+      .eq('id', id).single();
+
+    if (error || !entry) throw error;
+
     res.render('changelog-entry', { user: req.session.user || null, entry });
-  } catch (err) {
-    console.error('Error loading changelog entry:', err.message);
+
+  } catch {
     res.status(404).render('404', { user: req.session.user || null });
   }
 });
 
-
-
 // =======================
 // ACCOUNT SECURITY PAGE
+// ACCOUNT SECURITY (GET)
 // =======================
 app.get('/account/security', requireAuth, async (req, res) => {
   const userId = req.session.user.id;
@@ -698,6 +717,7 @@ app.get('/account/security', requireAuth, async (req, res) => {
   const flashError = req.query.error || null;
 
   try {
+    // Default profile from session
     let profile = {
       full_name: req.session.user.name || '',
       job_title: '',
@@ -737,17 +757,51 @@ app.get('/account/security', requireAuth, async (req, res) => {
       recentSessions = sessionRows;
     }
 
+    // Load metadata via service key
+    if (ylsooService?.auth?.admin?.getUserById) {
+      try {
+        const { data: adminUser, error: adminError } =
+          await ylsooService.auth.admin.getUserById(userId);
+
+        if (adminError) throw adminError;
+
+        const metadata = adminUser?.user?.user_metadata || {};
+
+        profile = {
+          full_name: metadata.name || metadata.full_name || req.session.user.name || '',
+          job_title: metadata.job_title || '',
+          timezone: metadata.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          phone_number: metadata.phone_number || '',
+          recovery_email: metadata.recovery_email || ''
+        };
+
+      } catch (adminErr) {
+        console.warn('Metadata fetch failed, using fallback.');
+      }
+    }
+
+    const { data: recentSessions, error: sessionsError } = await ylsooCore
+      .from('user_sessions')
+      .select('id, device_name, browser, os, ip_address, created_at, last_active, is_active')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (sessionsError && sessionsError.code !== 'PGRST116') throw sessionsError;
+
     const { data: prefs, error: prefsError } = await ylsooCore
       .from('notification_preferences')
       .select('*')
       .eq('user_id', userId)
       .single();
+
     if (prefsError && prefsError.code !== 'PGRST116') throw prefsError;
 
     res.render('account-security', {
       user: req.session.user,
       profile,
       sessions: recentSessions,
+      sessions: recentSessions || [],
       preferences: prefs || {
         email_updates: true,
         marketing_emails: false,
@@ -759,6 +813,10 @@ app.get('/account/security', requireAuth, async (req, res) => {
     });
   } catch (err) {
     console.error('Account security load error:', err.message);
+
+  } catch (err) {
+    console.error('Account security load error:', err.message);
+
     res.render('account-security', {
       user: req.session.user,
       profile: {
@@ -777,18 +835,23 @@ app.get('/account/security', requireAuth, async (req, res) => {
       },
       message: flashMessage,
       error: flashError || 'Unable to load account data right now.'
+      error: flashError || 'Unable to load account data.'
     });
   }
 });
 
-// Change Email
+// =======================
+// CHANGE EMAIL
+// =======================
 app.post('/api/account/change-email', requireAuth, async (req, res) => {
   const { newEmail } = req.body;
   try {
     const { error } = await ylsooCore.auth.updateUser({ email: newEmail });
     if (error) throw error;
+
     req.session.user.email = newEmail;
     res.redirect('/account/security?message=' + encodeURIComponent('Email updated successfully!'));
+
   } catch (err) {
     res.redirect('/account/security?error=' + encodeURIComponent(err.message));
   }
@@ -797,6 +860,12 @@ app.post('/api/account/change-email', requireAuth, async (req, res) => {
 // Update profile metadata
 app.post('/api/account/profile', requireAuth, async (req, res) => {
   const { full_name, job_title, timezone, phone_number, recovery_email } = req.body;
+// =======================
+// UPDATE PROFILE METADATA
+// =======================
+app.post('/api/account/profile', requireAuth, async (req, res) => {
+  const { full_name, job_title, timezone, phone_number, recovery_email } = req.body;
+
   try {
     const metadata = {
       name: full_name || req.session.user.name,
@@ -811,6 +880,17 @@ app.post('/api/account/profile', requireAuth, async (req, res) => {
         user_metadata: metadata
       });
       if (error) throw error;
+      phone_number,
+      recovery_email
+    };
+
+    if (ylsooCore.auth?.admin?.updateUserById) {
+      const { error } = await ylsooCore.auth.admin.updateUserById(
+        req.session.user.id,
+        { user_metadata: metadata }
+      );
+      if (error) throw error;
+
     } else {
       const { error } = await ylsooCore.auth.updateUser({ data: metadata });
       if (error) throw error;
@@ -818,6 +898,9 @@ app.post('/api/account/profile', requireAuth, async (req, res) => {
 
     req.session.user.name = metadata.name;
     res.redirect('/account/security?message=' + encodeURIComponent('Profile saved successfully.'));
+
+    res.redirect('/account/security?message=' + encodeURIComponent('Profile updated successfully.'));
+
   } catch (err) {
     console.error('Profile update error:', err.message);
     res.redirect('/account/security?error=' + encodeURIComponent('Failed to update profile.'));
@@ -825,7 +908,7 @@ app.post('/api/account/profile', requireAuth, async (req, res) => {
 });
 
 // =======================
-// PASSWORD RESET EMAIL (RESEND FIXED)
+// PASSWORD RESET EMAIL
 // =======================
 app.post('/api/account/request-password-code', requireAuth, async (req, res) => {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -835,93 +918,53 @@ app.post('/api/account/request-password-code', requireAuth, async (req, res) => 
 
   try {
     await ylsooCore.from('password_reset_codes').insert([{ 
+    await ylsooCore.from('password_reset_codes').insert([{
       user_id: userId,
       code,
       expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
       used: false
     }]);
+
     await resend.emails.send({
       from: 'Ylsoo Security <noreply@accts.ylsoo.com>',
       to: email,
       subject: 'Your Ylsoo Security Code',
-      html: `
-      <div style="font-family:Inter,Arial,sans-serif;background-color:#f8fafc;padding:0;margin:0;">
-        <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-          <div style="background:linear-gradient(90deg,#0f172a,#1e293b);padding:24px;text-align:center;">
-            <img src="https://ucarecdn.com/544489c7-f378-48ba-a2f1-d18c7dfb5e3f/1000001883removebgpreview.PNG" alt="Ylsoo Logo" style="max-width:140px;height:auto;" />
-          </div>
-          <div style="padding:32px 28px;">
-            <h2 style="text-align:center;color:#111827;">Security Verification</h2>
-            <p style="font-size:15px;line-height:1.6;color:#334155;">
-              Hello ${name},<br><br>
-              We received a request to change your Ylsoo account password.<br>
-              Use the verification code below to continue:
-            </p>
-            <div style="font-size:32px;font-weight:700;letter-spacing:6px;color:#0f172a;text-align:center;margin:24px 0;">${code}</div>
-            <p style="font-size:14px;color:#475569;">This code expires in <strong>10 minutes</strong>.  
-              If you didn’t request this change, please secure your account immediately.</p>
-          </div>
-          <div style="background:#f1f5f9;padding:20px;text-align:center;font-size:13px;color:#64748b;">
-            <p>&copy; 2025 Ylsoo Inc. All rights reserved.<br>
-            <a href="https://ylsoo.com/privacy" style="color:#0ea5e9;">Privacy</a> • 
-            <a href="https://ylsoo.com/terms" style="color:#0ea5e9;">Terms</a> • 
-            <a href="https://ylsoo.com/contact" style="color:#0ea5e9;">Support</a></p>
-          </div>
-        </div>
-      </div>`
+      html: `<p>Your verification code is: <b>${code}</b></p>`
     });
+
     res.json({ success: true });
+
   } catch (err) {
-    console.error('Resend error:', err);
-    res.status(500).json({ success: false, error: 'Failed to send verification code.' });
+    res.status(500).json({ success: false, error: 'Failed to send code.' });
   }
 });
 
 // =======================
-// ROADMAP PAGE
+// CHANGE PASSWORD
 // =======================
-app.get('/roadmap', async (req, res) => {
-  try {
-    const { data: roadmap, error } = await ylsooCore
-      .from('roadmap_items')
-      .select('*')
-      .order('id', { ascending: true });
-
-    if (error) throw error;
-
-    // Group roadmap items by status for layout
-    const grouped = {
-      planned: roadmap.filter(i => i.status === 'planned'),
-      in_progress: roadmap.filter(i => i.status === 'in_progress'),
-      shipped: roadmap.filter(i => i.status === 'shipped'),
-    };
-
-    res.render('roadmap', { user: req.session.user || null, grouped });
-  } catch (err) {
-    console.error('Error loading roadmap:', err.message);
-    res.render('roadmap', { user: req.session.user || null, grouped: { planned: [], in_progress: [], shipped: [] } });
-  }
-});
-
-
-// Change Password
 app.post('/api/account/change-password', requireAuth, async (req, res) => {
   const { newPassword, code } = req.body;
-  const userId = req.session.user.id;
+
   try {
     const { data, error } = await ylsooCore
       .from('password_reset_codes')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', req.session.user.id)
       .eq('code', code)
       .eq('used', false)
       .gte('expires_at', new Date().toISOString())
       .single();
+
     if (error || !data) throw new Error('Invalid or expired verification code.');
+
     await ylsooCore.from('password_reset_codes').update({ used: true }).eq('id', data.id);
+
     const { error: updateError } = await ylsooCore.auth.updateUser({ password: newPassword });
     if (updateError) throw updateError;
     res.redirect('/account/security?message=' + encodeURIComponent('Password changed successfully!'));
+
+    res.redirect('/account/security?message=' + encodeURIComponent('Password changed successfully!'));
+
   } catch (err) {
     res.redirect('/account/security?error=' + encodeURIComponent(err.message));
   }
@@ -929,12 +972,19 @@ app.post('/api/account/change-password', requireAuth, async (req, res) => {
 
 app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
   const enabled = req.body.enabled === true || req.body.enabled === 'true' || req.body.enabled === 'on';
+// =======================
+// TOGGLE SECURITY ALERTS
+// =======================
+app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
+  const enabled = req.body.enabled === 'true' || req.body.enabled === 'on';
+
   try {
     const { data: existing, error: fetchError } = await ylsooCore
       .from('notification_preferences')
       .select('*')
       .eq('user_id', req.session.user.id)
       .single();
+
     if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
     const payload = {
@@ -943,6 +993,7 @@ app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
       marketing_emails: existing?.marketing_emails ?? false,
       product_announcements: existing?.product_announcements ?? true,
       security_alerts: enabled,
+      security_alerts: enabled
     };
 
     const { error } = await ylsooCore
@@ -954,25 +1005,63 @@ app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Security alerts toggle error:', err.message);
     res.status(500).json({ success: false, error: 'Unable to update security alerts.' });
+      .upsert(payload);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Unable to update security alerts.' });
   }
 });
 
 // =======================
-// STATUS PAGE + HISTORY
+// ROADMAP PAGE
+// =======================
+app.get('/roadmap', async (req, res) => {
+  try {
+    const { data: roadmap, error } = await ylsooCore
+      .from('roadmap_items').select('*')
+      .order('id');
+
+    if (error) throw error;
+
+    const grouped = {
+      planned: roadmap.filter(r => r.status === 'planned'),
+      in_progress: roadmap.filter(r => r.status === 'in_progress'),
+      shipped: roadmap.filter(r => r.status === 'shipped')
+    };
+
+    res.render('roadmap', { user: req.session.user || null, grouped });
+
+  } catch {
+    res.render('roadmap', {
+      user: req.session.user || null,
+      grouped: { planned: [], in_progress: [], shipped: [] }
+    });
+  }
+});
+
+// =======================
+// STATUS PAGE
 // =======================
 app.get('/status', async (req, res) => {
   const start = Date.now();
   let coreStatus = 'Unknown';
+
   try {
     const { error } = await ylsooCore.from('journey').select('count').limit(1);
     coreStatus = error ? 'Error' : 'Online';
   } catch {
     coreStatus = 'Offline';
   }
+
   const latency = Date.now() - start;
   const uptime = Math.floor((Date.now() - serverStart) / 1000);
   const memory = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
   const cpuLoad = os.loadavg()[0].toFixed(2);
+
   const apiStatus = latency < 300 ? 'Online' : 'Degraded';
 
   try {
@@ -984,21 +1073,19 @@ app.get('/status', async (req, res) => {
       memory_mb: memory,
       cpu_load: cpuLoad
     }]);
-  } catch (err) {
-    console.error('Insert log error:', err.message);
-  }
+  } catch {}
 
   let history = [];
+
   try {
     const { data } = await ylsooCore
       .from('status_logs')
       .select('*')
       .order('timestamp', { ascending: false })
       .limit(20);
+
     history = (data || []).reverse();
-  } catch (err) {
-    console.error('Fetch logs error:', err.message);
-  }
+  } catch {}
 
   res.render('status', {
     user: req.session.user || null,
@@ -1016,17 +1103,12 @@ app.get('/status', async (req, res) => {
 });
 
 // =======================
-// SUSTAINABILITY
-// =======================
-app.get('/sustainability', (req, res) => {
-  res.render('sustainability', { user: req.session.user || null });
-});
-// =======================
-// API STATUS (for external uptime monitors)
+// API STATUS
 // =======================
 app.get('/api/status', async (req, res) => {
   const start = Date.now();
   let core = 'Online';
+
   try {
     const { error } = await ylsooCore.from('journey').select('count').limit(1);
     if (error) core = 'Error';
@@ -1047,41 +1129,29 @@ app.get('/api/status', async (req, res) => {
 });
 
 // =======================
-// EMAIL TEST ROUTE (for developers)
+// EMAIL TEST
 // =======================
 app.get('/api/email/test', async (req, res) => {
   try {
     await resend.emails.send({
       from: 'Ylsoo Security <noreply@accts.ylsoo.com>',
       to: 'pexusspielt@gmail.com',
-      subject: '✅ Ylsoo Email Test Successful',
-      html: `
-      <div style="font-family:Inter,Arial,sans-serif;background-color:#f9fafb;padding:0;margin:0;">
-        <div style="max-width:520px;margin:40px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-          <div style="background:linear-gradient(90deg,#0f172a,#1e293b);padding:24px;text-align:center;">
-            <img src="https://ylsoo.com/logo.png" alt="Ylsoo Logo" style="max-width:150px;height:auto;" />
-          </div>
-          <div style="padding:32px 28px;text-align:center;">
-            <h2 style="color:#111827;">Email Delivery Working 🚀</h2>
-            <p style="font-size:15px;line-height:1.6;color:#374151;">
-              This confirms your Resend email setup is working properly.<br>
-              Emails will be sent from <b>noreply@accts.ylsoo.com</b>.
-            </p>
-            <p style="font-size:13px;color:#6b7280;">(You can safely delete this test message.)</p>
-          </div>
-          <div style="background:#f3f4f6;padding:20px;text-align:center;font-size:13px;color:#6b7280;">
-            &copy; 2025 Ylsoo Inc.<br>
-            <a href="https://ylsoo.com" style="color:#0284c7;text-decoration:none;">Visit Ylsoo</a>
-          </div>
-        </div>
-      </div>`
+      subject: 'Ylsoo Email Test',
+      html: '<p>Email system is working.</p>'
     });
 
-    res.json({ success: true, message: 'Test email sent successfully via Resend.' });
+    res.json({ success: true, message: 'Test email sent successfully.' });
+
   } catch (err) {
-    console.error('Email test error:', err.message);
     res.status(500).json({ success: false, error: 'Failed to send test email.' });
   }
+});
+
+// =======================
+// SUSTAINABILITY
+// =======================
+app.get('/sustainability', (req, res) => {
+  res.render('sustainability', { user: req.session.user || null });
 });
 
 // =======================
@@ -1096,6 +1166,10 @@ app.use((err, req, res, next) => {
   res.status(500).render('error', {
     user: req.session.user || null,
     message: 'Something went wrong on our side.',
+  console.error('Internal Server Error:', err.stack);
+  res.status(500).render('error', {
+    user: req.session.user || null,
+    message: 'Something went wrong.',
     error: err,
   });
 });
@@ -1104,6 +1178,6 @@ app.use((err, req, res, next) => {
 // SERVER START
 // =======================
 app.listen(PORT, () => {
-  console.log(`✅ Ylsoo server running on http://localhost:${PORT}`);
-  console.log(`🔗 Connected to Ylsoo Core: ${ylsooCoreUrl}`);
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Connected to Supabase: ${ylsooCoreUrl}`);
 });
