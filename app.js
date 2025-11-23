@@ -145,29 +145,11 @@ app.get('/careers/:id', async (req, res) => {
   }
 });
 
-// =======================
-// TEAM PAGE
-// =======================
-app.get('/team', async (req, res) => {
-  try {
-    const { data: team, error } = await ylsooCore
-      .from('team')
-      .select('*')
-      .order('joined_year', { ascending: false });
-
-    if (error) throw error;
-
-    res.render('team', { user: req.session.user || null, team });
-  } catch (err) {
-    console.error('Error loading team:', err.message);
-    res.render('team', { user: req.session.user || null, team: [] });
-  }
-});
 
 // =======================
 // TEAMS PAGE (CORE MEMBERS)
 // =======================
-app.get('/teams', async (req, res) => {
+app.get('/team', async (req, res) => {
   try {
     const { data: teams, error } = await ylsooCore
       .from('core_team_members')
