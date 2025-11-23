@@ -24,6 +24,15 @@ let serverStart = Date.now();
 const ylsooCoreUrl = process.env.SUPABASE_URL || 'https://qjnwvmzrwxdtvapsuzgc.supabase.co';
 const ylsooCoreKey = process.env.SUPABASE_ANON_KEY || 'YOUR_PUBLIC_KEY_HERE';
 const ylsooCore = createClient(ylsooCoreUrl, ylsooCoreKey);
+const ylsooServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
+const ylsooService = ylsooServiceKey
+  ? createClient(ylsooCoreUrl, ylsooServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null;
 
 const ylsooServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
 const ylsooService = ylsooServiceKey
@@ -105,6 +114,46 @@ app.get('/careers', async (req, res) => {
   }
 });
 
+// =======================
+// TEAM PAGE
+// =======================
+app.get('/team', async (req, res) => {
+  try {
+    const { data: team, error } = await ylsooCore
+      .from('team')
+      .select('*')
+      .order('joined_year', { ascending: false });
+
+    if (error) throw error;
+
+    res.render('team', { user: req.session.user || null, team });
+  } catch (err) {
+    console.error('Error loading team:', err.message);
+    res.render('team', { user: req.session.user || null, team: [] });
+  }
+});
+
+// =======================
+// TEAMS PAGE (CORE MEMBERS)
+// =======================
+app.get('/teams', async (req, res) => {
+  try {
+    const { data: teams, error } = await ylsooCore
+      .from('core_team_members')
+      .select('*')
+      .order('priority', { ascending: true })
+      .order('joined_year', { ascending: false });
+
+    if (error) throw error;
+
+    res.render('teams', { user: req.session.user || null, teams });
+  } catch (err) {
+    console.error('Error loading core team members:', err.message);
+    res.render('teams', { user: req.session.user || null, teams: [] });
+  }
+});
+
+// Single Job Page
 // Single job
 app.get('/careers/:id', async (req, res) => {
   try {
@@ -659,6 +708,7 @@ app.get('/changes/:id', async (req, res) => {
 });
 
 // =======================
+// ACCOUNT SECURITY PAGE
 // ACCOUNT SECURITY (GET)
 // =======================
 app.get('/account/security', requireAuth, async (req, res) => {
@@ -675,6 +725,37 @@ app.get('/account/security', requireAuth, async (req, res) => {
       phone_number: '',
       recovery_email: ''
     };
+
+    if (ylsooService?.auth?.admin?.getUserById) {
+      try {
+        const { data: adminUser, error: adminError } = await ylsooService.auth.admin.getUserById(userId);
+        if (adminError) throw adminError;
+        const metadata = adminUser?.user?.user_metadata || {};
+        profile = {
+          full_name: metadata.name || metadata.full_name || req.session.user.name || '',
+          job_title: metadata.job_title || '',
+          timezone: metadata.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          phone_number: metadata.phone_number || '',
+          recovery_email: metadata.recovery_email || ''
+        };
+      } catch (adminErr) {
+        console.warn('Profile metadata fallback used:', adminErr.message);
+      }
+    } else {
+      console.warn('SUPABASE_SERVICE_ROLE_KEY missing; using session profile defaults.');
+    }
+
+    let recentSessions = [];
+    const { data: sessionRows, error: sessionsError } = await ylsooCore
+      .from('user_sessions')
+      .select('id, device_name, browser, os, ip_address, created_at, last_active, is_active')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (sessionsError && sessionsError.code !== 'PGRST116') throw sessionsError;
+    if (sessionRows) {
+      recentSessions = sessionRows;
+    }
 
     // Load metadata via service key
     if (ylsooService?.auth?.admin?.getUserById) {
@@ -719,6 +800,7 @@ app.get('/account/security', requireAuth, async (req, res) => {
     res.render('account-security', {
       user: req.session.user,
       profile,
+      sessions: recentSessions,
       sessions: recentSessions || [],
       preferences: prefs || {
         email_updates: true,
@@ -729,6 +811,8 @@ app.get('/account/security', requireAuth, async (req, res) => {
       message: flashMessage,
       error: flashError
     });
+  } catch (err) {
+    console.error('Account security load error:', err.message);
 
   } catch (err) {
     console.error('Account security load error:', err.message);
@@ -750,6 +834,7 @@ app.get('/account/security', requireAuth, async (req, res) => {
         product_announcements: true
       },
       message: flashMessage,
+      error: flashError || 'Unable to load account data right now.'
       error: flashError || 'Unable to load account data.'
     });
   }
@@ -772,6 +857,9 @@ app.post('/api/account/change-email', requireAuth, async (req, res) => {
   }
 });
 
+// Update profile metadata
+app.post('/api/account/profile', requireAuth, async (req, res) => {
+  const { full_name, job_title, timezone, phone_number, recovery_email } = req.body;
 // =======================
 // UPDATE PROFILE METADATA
 // =======================
@@ -783,6 +871,15 @@ app.post('/api/account/profile', requireAuth, async (req, res) => {
       name: full_name || req.session.user.name,
       job_title: job_title || '',
       timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      phone_number: phone_number || '',
+      recovery_email: recovery_email || ''
+    };
+
+    if (ylsooCore.auth?.admin?.updateUserById) {
+      const { error } = await ylsooCore.auth.admin.updateUserById(req.session.user.id, {
+        user_metadata: metadata
+      });
+      if (error) throw error;
       phone_number,
       recovery_email
     };
@@ -800,6 +897,7 @@ app.post('/api/account/profile', requireAuth, async (req, res) => {
     }
 
     req.session.user.name = metadata.name;
+    res.redirect('/account/security?message=' + encodeURIComponent('Profile saved successfully.'));
 
     res.redirect('/account/security?message=' + encodeURIComponent('Profile updated successfully.'));
 
@@ -819,6 +917,7 @@ app.post('/api/account/request-password-code', requireAuth, async (req, res) => 
   const name = req.session.user.name || 'User';
 
   try {
+    await ylsooCore.from('password_reset_codes').insert([{ 
     await ylsooCore.from('password_reset_codes').insert([{
       user_id: userId,
       code,
@@ -862,6 +961,7 @@ app.post('/api/account/change-password', requireAuth, async (req, res) => {
 
     const { error: updateError } = await ylsooCore.auth.updateUser({ password: newPassword });
     if (updateError) throw updateError;
+    res.redirect('/account/security?message=' + encodeURIComponent('Password changed successfully!'));
 
     res.redirect('/account/security?message=' + encodeURIComponent('Password changed successfully!'));
 
@@ -870,6 +970,8 @@ app.post('/api/account/change-password', requireAuth, async (req, res) => {
   }
 });
 
+app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
+  const enabled = req.body.enabled === true || req.body.enabled === 'true' || req.body.enabled === 'on';
 // =======================
 // TOGGLE SECURITY ALERTS
 // =======================
@@ -890,11 +992,19 @@ app.post('/api/account/security-alerts', requireAuth, async (req, res) => {
       email_updates: existing?.email_updates ?? true,
       marketing_emails: existing?.marketing_emails ?? false,
       product_announcements: existing?.product_announcements ?? true,
+      security_alerts: enabled,
       security_alerts: enabled
     };
 
     const { error } = await ylsooCore
       .from('notification_preferences')
+      .upsert(payload, { onConflict: 'user_id' });
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Security alerts toggle error:', err.message);
+    res.status(500).json({ success: false, error: 'Unable to update security alerts.' });
       .upsert(payload);
 
     if (error) throw error;
@@ -1052,6 +1162,10 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error('💥 Internal Server Error:', err.stack);
+  res.status(500).render('error', {
+    user: req.session.user || null,
+    message: 'Something went wrong on our side.',
   console.error('Internal Server Error:', err.stack);
   res.status(500).render('error', {
     user: req.session.user || null,

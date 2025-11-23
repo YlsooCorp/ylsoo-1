@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ylsoo Teams</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #f4f6fb;
+        color: #0f172a;
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+
+      .hero {
+        padding: 64px 16px 32px;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 2.75rem;
+        margin: 0;
+        font-weight: 800;
+      }
+
+      .hero p {
+        max-width: 820px;
+        margin: 16px auto 0;
+        color: #475569;
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px 72px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 340px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 14px;
+        object-fit: cover;
+        border: 3px solid #e2e8f0;
+      }
+
+      .name {
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+
+      .title {
+        color: #475569;
+        font-size: 0.98rem;
+        margin-top: 2px;
+      }
+
+      .meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        color: #0ea5e9;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+      }
+
+      .tag {
+        background: #eef2ff;
+        color: #4338ca;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+
+      .bio {
+        color: #334155;
+        line-height: 1.55;
+        font-size: 0.98rem;
+      }
+
+      .wins {
+        margin: 0;
+        padding-left: 18px;
+        color: #0f172a;
+        line-height: 1.6;
+      }
+
+      .wins li {
+        margin-bottom: 6px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #94a3b8;
+        font-size: 1.05rem;
+      }
+
+      @media (max-width: 640px) {
+        .card-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .avatar {
+          width: 92px;
+          height: 92px;
+        }
+
+        .meta {
+          gap: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar', { user }) %>
+
+    <section class="hero">
+      <h1>Teams & Leadership</h1>
+      <p>
+        The builders, operators, and advisors guiding Ylsoo forward. These are the people
+        shaping our roadmap, safeguarding our customers, and keeping our principles rooted in ethical AI.
+      </p>
+    </section>
+
+    <% if (teams.length > 0) { %>
+      <section class="grid">
+        <% teams.forEach(member => { %>
+          <article class="card">
+            <div class="card-header">
+              <img src="<%= member.photo_url || '/img/default-avatar.png' %>" alt="<%= member.name %>" class="avatar" />
+              <div>
+                <div class="name"><%= member.name %></div>
+                <div class="title"><%= member.title %></div>
+                <div class="meta">
+                  <% if (member.location) { %>
+                    <span><i class="fa-solid fa-location-dot"></i> <%= member.location %></span>
+                  <% } %>
+                  <% if (member.joined_year) { %>
+                    <span><i class="fa-regular fa-calendar"></i> Joined <%= member.joined_year %></span>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <% if (member.focus_area) { %>
+              <div class="tags">
+                <span class="tag">Focus: <%= member.focus_area %></span>
+                <% if (member.team_name) { %>
+                  <span class="tag"><%= member.team_name %></span>
+                <% } %>
+              </div>
+            <% } else if (member.team_name) { %>
+              <div class="tags">
+                <span class="tag"><%= member.team_name %></span>
+              </div>
+            <% } %>
+
+            <div class="bio"><%= member.bio || 'This leader keeps Ylsoo shipping securely and responsibly.' %></div>
+
+            <% if (member.notable_wins && member.notable_wins.length > 0) { %>
+              <ul class="wins">
+                <% member.notable_wins.forEach(win => { %>
+                  <li><%= win %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </article>
+        <% }) %>
+      </section>
+    <% } else { %>
+      <div class="empty-state">No teams to showcase yet. Check back soon.</div>
+    <% } %>
+
+    <%- include('partials/footer') %>
+    <script src="https://kit.fontawesome.com/5d2df64e9a.js" crossorigin="anonymous"></script>
+  </body>
+</html>
